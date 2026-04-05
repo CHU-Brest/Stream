@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import polars as pl
 
 from pipelines.base import BasePipeline
 
 
 class APHPPipeline(BasePipeline):
-    """Pipeline AP-HP — à implémenter.
+    """AP-HP pipeline — not yet implemented.
 
-    Ce pipeline implémentera la méthode AP-HP de génération de CRH
-    synthétiques (source ATIH / recode-scenario).
+    Will implement the AP-HP method for synthetic medical-report generation
+    (ATIH source / recode-scenario).
     """
 
     name = "aphp"

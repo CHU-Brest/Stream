@@ -138,6 +138,9 @@ celerybeat.pid
 .env
 .envrc
 .venv
+
+# Local config (may contain API keys)
+config/servers.yaml
 env/
 venv/
 ENV/

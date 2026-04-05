@@ -1,5 +1,7 @@
-import os
+from __future__ import annotations
+
 import uuid
+from pathlib import Path
 
 import numpy as np
 import polars as pl
@@ -9,10 +11,11 @@ from pipelines.base import BasePipeline
 
 
 class BrestPipeline(BasePipeline):
-    """Pipeline CHU Brest — génération de CRH par tirage pondéré PMSI (source SNDS).
+    """CHU Brest pipeline — weighted PMSI sampling (SNDS source).
 
-    Les données sont extraites via ``liabilities/extract_pmsi_tables_SNDS.sas``
-    et déposées en CSV dans le répertoire ``data.input`` configuré dans servers.yaml.
+    Source data is extracted via ``liabilities/extract_pmsi_tables_SNDS.sas``
+    and placed as CSV files in the ``data.input`` directory configured in
+    ``servers.yaml``.
     """
 
     name = "brest"
@@ -27,20 +30,18 @@ class BrestPipeline(BasePipeline):
         "ccam_ref": "ALL_CCAM.csv",
     }
 
-    # ------------------------------------------------------------------
-    # Données
-    # ------------------------------------------------------------------
+    # -- Data loading ------------------------------------------------------
 
     def check_data(self) -> None:
-        """Vérifie et convertit les CSV PMSI en Parquet si nécessaire."""
-        input_dir = self.config["data"]["input"]
+        """Convert PMSI CSV files to Parquet if not already present."""
+        input_dir = Path(self.config["data"]["input"])
 
         for name, csv_file in self.SOURCES.items():
-            parquet = os.path.join(input_dir, f"{name}.parquet")
-            if os.path.exists(parquet):
+            parquet = input_dir / f"{name}.parquet"
+            if parquet.exists():
                 continue
             pl.read_csv(
-                os.path.join(input_dir, csv_file),
+                input_dir / csv_file,
                 separator=";",
                 encoding="latin-1",
                 infer_schema_length=10000,
@@ -49,16 +50,14 @@ class BrestPipeline(BasePipeline):
         self.logger.info("Les données de génération sont présentes et valides.")
 
     def load_data(self) -> dict[str, pl.LazyFrame]:
-        """Charge tous les Parquet PMSI en LazyFrame."""
-        input_dir = self.config["data"]["input"]
+        """Load all PMSI Parquet files as LazyFrames."""
+        input_dir = Path(self.config["data"]["input"])
         return {
-            name: pl.scan_parquet(os.path.join(input_dir, f"{name}.parquet"))
+            name: pl.scan_parquet(input_dir / f"{name}.parquet")
             for name in self.SOURCES
         }
 
-    # ------------------------------------------------------------------
-    # Génération de séjours fictifs
-    # ------------------------------------------------------------------
+    # -- Fictitious stay generation ----------------------------------------
 
     def get_fictive(
         self,
@@ -69,12 +68,12 @@ class BrestPipeline(BasePipeline):
         ghm5_pattern: str | None = None,
         **kwargs,
     ) -> pl.DataFrame:
-        """Génère des séjours fictifs par tirage pondéré sur les référentiels PMSI.
+        """Generate fictitious stays via weighted PMSI sampling.
 
         Returns
         -------
         pl.DataFrame
-            Colonnes : generation_id, AGE, SEXE, GHM5, GHM5_CODE, DP, DP_CODE,
+            Columns: generation_id, AGE, SEXE, GHM5, GHM5_CODE, DP, DP_CODE,
             CCAM (list[str]), DAS (list[str]), DMS (int).
         """
         steps = [
@@ -87,7 +86,7 @@ class BrestPipeline(BasePipeline):
         ]
         pbar = tqdm(steps, desc="Génération scénarios", unit="étape")
 
-        # --- 0. Chargement des référentiels -----------------------------------
+        # 0 — Load reference tables
         pbar.set_description("Chargement référentiels")
         dp_df = data["dp"].collect()
         ccam_df = data["ccam"].collect()
@@ -122,7 +121,7 @@ class BrestPipeline(BasePipeline):
                 raise ValueError(f"Aucun séjour DP ne correspond au pattern GHM5 '{ghm5_pattern}'")
         pbar.update(1)
 
-        # --- 1. Tirage pondéré des séjours DP --------------------------------
+        # 1 — Weighted primary-diagnosis sampling
         pbar.set_description("Tirage DP")
         dp_df = dp_df.filter(pl.col("DP").is_not_null() & pl.col("GHM5").is_not_null())
         if dp_df.is_empty():
@@ -132,7 +131,7 @@ class BrestPipeline(BasePipeline):
         sampled = dp_df[indices].select("AGE", "SEXE", "GHM5", "DP")
         pbar.update(1)
 
-        # --- 2. Tirage CCAM (GHM chirurgicaux uniquement) --------------------
+        # 2 — CCAM procedure sampling (surgical GHMs only)
         pbar.set_description("Tirage CCAM")
         actes: list[list[str]] = []
         for row in sampled.iter_rows(named=True):
@@ -156,7 +155,7 @@ class BrestPipeline(BasePipeline):
             actes.append([_format_display(top[int(j), "CCAM"], ccam_map) for j in idx])
         pbar.update(1)
 
-        # --- 3. Tirage DAS (cascade GHM5+AGE+SEXE+DP → GHM5) ---------------
+        # 3 — Associated-diagnosis sampling (cascading fallback)
         pbar.set_description("Tirage DAS")
         das_list: list[list[str]] = []
         for row in sampled.iter_rows(named=True):
@@ -187,7 +186,7 @@ class BrestPipeline(BasePipeline):
             das_list.append([_format_display(c, cim10_map) for c in codes_drawn])
         pbar.update(1)
 
-        # --- 4. Tirage DMS (triangulaire P25/P50/P75) ------------------------
+        # 4 — Length-of-stay sampling (triangular distribution)
         pbar.set_description("Tirage DMS")
         dms_list: list[int] = []
         for row in sampled.iter_rows(named=True):
@@ -200,7 +199,7 @@ class BrestPipeline(BasePipeline):
                 dms_list.append(max(0, int(round(val))))
         pbar.update(1)
 
-        # --- 5. Remplacement des codes par les libellés ----------------------
+        # 5 — Resolve codes to labels
         pbar.set_description("Résolution libellés")
         result = sampled.with_columns(
             pl.Series("CCAM", actes, dtype=pl.List(pl.Utf8)),
@@ -226,12 +225,10 @@ class BrestPipeline(BasePipeline):
 
         return result
 
-    # ------------------------------------------------------------------
-    # Scénario textuel
-    # ------------------------------------------------------------------
+    # -- Scenario formatting -----------------------------------------------
 
     def get_scenario(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Transforme les séjours fictifs en scénarios textuels pour le LLM."""
+        """Format fictitious stays as text scenarios for the LLM."""
         das_str = df["DAS"].list.join(", ")
         das_str = pl.when(das_str == "").then(pl.lit("Aucun")).otherwise(das_str)
 
@@ -255,19 +252,17 @@ class BrestPipeline(BasePipeline):
         return df.with_columns(scenario.alias("scenario"))
 
 
-# =============================================================================
-# Helpers internes (spécifiques au pipeline Brest)
-# =============================================================================
+# -- Helpers (Brest-specific) ----------------------------------------------
 
 
 def _format_display(code: str, ref_map: dict[str, str]) -> str:
-    """Formate 'libellé (code)' ou juste 'code' si pas de libellé."""
+    """Format as ``'label (code)'``, or just ``code`` if no label found."""
     lib = ref_map.get(code)
     return f"{lib} ({code})" if lib else code
 
 
 def _build_dms_lookup(dms_df: pl.DataFrame) -> dict[str, tuple[float, float, float]]:
-    """Construit un dict GHM5 → (P25, P50, P75) pour le tirage triangulaire."""
+    """Build a GHM5 → (P25, P50, P75) lookup for triangular sampling."""
     lookup: dict[str, tuple[float, float, float]] = {}
     for row in dms_df.iter_rows(named=True):
         left, mode, right = row["DMS_P25"], row["DMS_P50"], row["DMS_P75"]
@@ -279,13 +274,13 @@ def _build_dms_lookup(dms_df: pl.DataFrame) -> dict[str, tuple[float, float, flo
 
 
 def _build_ref_map(ref_df: pl.DataFrame) -> dict[str, str]:
-    """Construit un dict col[0] → col[1] depuis un référentiel à 2 colonnes."""
+    """Build a ``col[0] → col[1]`` dict from a two-column reference frame."""
     cols = ref_df.columns
     return dict(zip(ref_df[cols[0]].to_list(), ref_df[cols[1]].to_list()))
 
 
 def _weighted_choice(weights: pl.Series, size: int, replace: bool = True) -> np.ndarray:
-    """Tirage pondéré via numpy. Normalise les poids automatiquement."""
+    """Weighted random draw via numpy. Weights are auto-normalised."""
     p = weights.to_numpy().astype(np.float64)
     p /= p.sum()
     return np.random.choice(len(p), size=size, replace=replace, p=p)
@@ -296,7 +291,7 @@ def _ccam_fallback(
     row: dict,
     dp_cat: str,
 ) -> pl.DataFrame | None:
-    """Fallback CCAM : GHM5+DP → GHM5+catégorie DP → GHM5."""
+    """CCAM fallback cascade: GHM5+DP → GHM5+DP-category → GHM5."""
     filters = [
         (pl.col("GHM5") == row["GHM5"]) & (pl.col("DP") == row["DP"]),
         (pl.col("GHM5") == row["GHM5"]) & (pl.col("DP").str.starts_with(dp_cat)),
@@ -310,7 +305,7 @@ def _ccam_fallback(
 
 
 def _draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
-    """Tirage séquentiel de DAS avec exclusion catégorielle [:2] et fallback."""
+    """Draw DAS codes sequentially with ICD-10 category exclusion and fallback."""
     deduped_pools = [
         pool.group_by("DAS").agg(pl.col("P_DAS").sum()) for pool in pools
     ]

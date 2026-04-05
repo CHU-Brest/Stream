@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from pathlib import Path
+
 from core.config import load_config
 from pipelines.pipeline_aphp import APHPPipeline
 from pipelines.pipeline_brest import BrestPipeline
@@ -6,6 +10,8 @@ PIPELINES = {
     "brest": BrestPipeline,
     "aphp": APHPPipeline,
 }
+
+CONFIG_DIR = Path(__file__).resolve().parent / "config"
 
 
 def run(
@@ -17,15 +23,15 @@ def run(
     ghm5_pattern: str | None = None,
     batch_size: int = 1000,
 ) -> None:
-    """Orchestre le pipeline de génération de CRH synthétiques de bout en bout."""
+    """Orchestrate an end-to-end synthetic medical-report generation run."""
     if pipeline_name not in PIPELINES:
         raise ValueError(
             f"Pipeline inconnu : '{pipeline_name}'. "
             f"Valeurs acceptées : {list(PIPELINES.keys())}"
         )
 
-    config = load_config("config/servers.yaml")
-    prompt = load_config("config/prompts.yaml")
+    config = load_config(CONFIG_DIR / "servers.yaml")
+    prompt = load_config(CONFIG_DIR / "prompts.yaml")
 
     pipeline = PIPELINES[pipeline_name](
         config=config["pipelines"][pipeline_name],

@@ -19,14 +19,14 @@ Stream/
 ├── runner.py                     # Orchestration du pipeline
 ├── core/
 │   ├── config.py                 # Chargement YAML
-│   └── logging.py                # Logger console
+│   └── logger.py                 # Logger console
 ├── pipelines/
 │   ├── base.py                   # Socle commun (wrappers LLM, get_report, get_client)
 │   ├── pipeline_brest.py         # Pipeline Brest (tirage pondéré PMSI)
 │   └── pipeline_aphp.py          # Pipeline AP-HP (à implémenter)
 └── config/
     ├── prompts.yaml              # System prompts LLM
-    └── servers.yaml              # Config pipelines + serveurs LLM
+    └── servers.example.yaml      # Template config (copier vers servers.yaml)
 ```
 
 ## Installation
@@ -38,6 +38,12 @@ pip install -r requirements.txt
 ```
 
 ## Configuration
+
+Copier le template et renseigner vos clés API :
+
+```bash
+cp config/servers.example.yaml config/servers.yaml
+```
 
 Éditer `config/servers.yaml` :
 

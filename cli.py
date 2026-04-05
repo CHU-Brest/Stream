@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import sys
 
@@ -5,6 +7,7 @@ from runner import run
 
 
 def main() -> None:
+    """CLI entry point for synthetic medical-report generation."""
     parser = argparse.ArgumentParser(
         prog="stream",
         description="Génération de comptes rendus d'hospitalisation synthétiques.",

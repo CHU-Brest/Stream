@@ -1,47 +1,52 @@
-import os
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from datetime import datetime
+from pathlib import Path
 
 import httpx
 import polars as pl
 from tqdm import tqdm
 
-from core.logging import get_logger
+from core.logger import get_logger
 
-
-# =============================================================================
-# Wrappers LLM
-# =============================================================================
+REPORT_SCHEMA = {
+    "generation_id": pl.Utf8,
+    "scenario": pl.Utf8,
+    "report": pl.Utf8,
+    "model": pl.Utf8,
+    "timestamp": pl.Datetime,
+}
 
 
 class AnthropicClient:
-    """Client Anthropic (Claude) normalisé sur l'interface chat().
+    """Anthropic (Claude) client normalised to the ``chat()`` interface.
 
     Parameters
     ----------
-    api_key : str
-        Clé API Anthropic.
-    verify : bool | str
-        ``True`` (défaut), ``False``, ou chemin vers un bundle CA (.pem).
+    api_key:
+        Anthropic API key.
+    verify:
+        ``True`` (default), ``False``, or path to a CA bundle (``.pem``).
     """
 
-    def __init__(self, api_key: str, verify: bool | str = True):
+    def __init__(self, api_key: str, verify: bool | str = True) -> None:
         from anthropic import Anthropic
 
         self._client = Anthropic(
             api_key=api_key, http_client=httpx.Client(verify=verify)
         )
 
-    def chat(self, model: str, messages: list, **kwargs) -> dict:
-        system = None
-        chat_messages = []
+    def chat(self, model: str, messages: list[dict], **kwargs) -> dict:
+        system: str | None = None
+        chat_messages: list[dict] = []
         for msg in messages:
             if msg["role"] == "system":
                 system = msg["content"]
             else:
                 chat_messages.append(msg)
 
-        params = dict(
+        params: dict = dict(
             model=model,
             max_tokens=kwargs.get("max_tokens", 4096),
             messages=chat_messages,
@@ -49,7 +54,7 @@ class AnthropicClient:
         if system:
             params["system"] = system
 
-        response = self._client.messages.create(**params)  # type: ignore
+        response = self._client.messages.create(**params)  # type: ignore[arg-type]
 
         return {
             "message": {
@@ -60,24 +65,24 @@ class AnthropicClient:
 
 
 class MistralClient:
-    """Client Mistral normalisé sur l'interface chat().
+    """Mistral client normalised to the ``chat()`` interface.
 
     Parameters
     ----------
-    api_key : str
-        Clé API Mistral.
-    verify : bool | str
-        ``True`` (défaut), ``False``, ou chemin vers un bundle CA (.pem).
+    api_key:
+        Mistral API key.
+    verify:
+        ``True`` (default), ``False``, or path to a CA bundle (``.pem``).
     """
 
-    def __init__(self, api_key: str, verify: bool | str = True):
+    def __init__(self, api_key: str, verify: bool | str = True) -> None:
         from mistralai import Mistral
 
         self._client = Mistral(api_key=api_key)
         if verify is not True:
             self._client.client._client = httpx.Client(verify=verify)
 
-    def chat(self, model: str, messages: list, **kwargs) -> dict:
+    def chat(self, model: str, messages: list[dict], **kwargs) -> dict:
         response = self._client.chat.complete(
             model=model,
             max_tokens=kwargs.get("max_tokens", 4096),
@@ -92,75 +97,58 @@ class MistralClient:
         }
 
 
-# =============================================================================
-# Pipeline de base
-# =============================================================================
-
-REPORT_SCHEMA = {
-    "generation_id": pl.Utf8,
-    "scenario": pl.Utf8,
-    "report": pl.Utf8,
-    "model": pl.Utf8,
-    "timestamp": pl.Datetime,
-}
-
-
 class BasePipeline(ABC):
-    """Socle commun des pipelines de génération de CRH synthétiques.
+    """Base class for synthetic medical-report generation pipelines.
 
-    Fournit les briques partagées (wrappers LLM, boucle de génération,
-    persistence Parquet) et définit l'interface que chaque pipeline concret
-    doit implémenter.
+    Provides shared building blocks (LLM wrappers, generation loop, Parquet
+    persistence) and defines the interface that each concrete pipeline must
+    implement.
     """
 
     name: str = "base"
 
-    def __init__(self, config: dict, prompt: dict, servers: dict):
+    def __init__(self, config: dict, prompt: dict, servers: dict) -> None:
         self.config = config
         self.prompt = prompt
         self.servers = servers
         self.logger = get_logger(self.name)
 
-    # ------------------------------------------------------------------
-    # Méthodes abstraites — à implémenter par chaque pipeline
-    # ------------------------------------------------------------------
+    # -- Abstract interface ------------------------------------------------
 
     @abstractmethod
     def check_data(self) -> None:
-        """Vérifie la présence des données sources et les prépare si nécessaire."""
+        """Verify that source data is present and prepare it if needed."""
 
     @abstractmethod
     def load_data(self) -> dict[str, pl.LazyFrame]:
-        """Charge les données préparées en LazyFrame."""
+        """Load prepared data as LazyFrames."""
 
     @abstractmethod
     def get_fictive(self, data: dict[str, pl.LazyFrame], **kwargs) -> pl.DataFrame:
-        """Génère des séjours fictifs à partir des données chargées."""
+        """Generate fictitious hospital stays from loaded data."""
 
     @abstractmethod
     def get_scenario(self, df: pl.DataFrame) -> pl.DataFrame:
-        """Transforme les séjours fictifs en scénarios textuels pour le LLM."""
+        """Transform fictitious stays into text scenarios for the LLM."""
 
-    # ------------------------------------------------------------------
-    # Génération de CRH via LLM (partagé)
-    # ------------------------------------------------------------------
+    # -- LLM report generation (shared) ------------------------------------
 
     def get_report(
         self,
         df: pl.DataFrame,
-        client,
+        client: AnthropicClient | MistralClient,
         model: str,
         batch_size: int = 1000,
     ) -> pl.DataFrame:
-        """Génère un CRH par appel LLM pour chaque scénario.
+        """Generate one medical report per scenario via LLM calls.
 
-        Les résultats sont écrits en Parquet par lots de ``batch_size`` dans
-        le répertoire de sortie configuré.
+        Results are flushed to timestamped Parquet files every
+        *batch_size* rows in the configured output directory.
 
         Returns
         -------
         pl.DataFrame
-            Colonnes : generation_id, scenario, report, model, timestamp.
+            Columns: generation_id, scenario, report, model, timestamp.
         """
         if "generation_id" not in df.columns:
             raise ValueError(
@@ -168,9 +156,9 @@ class BasePipeline(ABC):
                 "Assurez-vous de passer par get_fictive avant get_report."
             )
 
-        system_prompt = self.prompt["generate"]["system_prompt"]
-        output_dir = self.config["data"]["output"]
-        os.makedirs(output_dir, exist_ok=True)
+        system_prompt: str = self.prompt["generate"]["system_prompt"]
+        output_dir = Path(self.config["data"]["output"])
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         results: list[dict] = []
         batch: list[dict] = []
@@ -202,12 +190,10 @@ class BasePipeline(ABC):
 
         return pl.DataFrame(results, schema=REPORT_SCHEMA)
 
-    # ------------------------------------------------------------------
-    # Sélection du client LLM (partagé)
-    # ------------------------------------------------------------------
+    # -- LLM client factory (shared) ---------------------------------------
 
-    def get_client(self, client_type: str = "ollama") -> tuple:
-        """Instancie le client LLM et retourne ``(client, model_name)``."""
+    def get_client(self, client_type: str = "ollama") -> tuple[AnthropicClient | MistralClient, str]:
+        """Instantiate an LLM client and return ``(client, model_name)``."""
         if client_type == "ollama":
             from ollama import Client
 
@@ -234,13 +220,8 @@ class BasePipeline(ABC):
         )
 
 
-# =============================================================================
-# Helpers partagés
-# =============================================================================
-
-
-def _flush_batch(batch: list[dict], output_dir: str, count: int) -> None:
-    """Écrit un lot de résultats dans un fichier Parquet horodaté."""
+def _flush_batch(batch: list[dict], output_dir: Path, count: int) -> None:
+    """Write a batch of results to a timestamped Parquet file."""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = os.path.join(output_dir, f"medical_reports_{count}_{ts}.parquet")
+    path = output_dir / f"medical_reports_{count}_{ts}.parquet"
     pl.DataFrame(batch, schema=REPORT_SCHEMA).write_parquet(path)
