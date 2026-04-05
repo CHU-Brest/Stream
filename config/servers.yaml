@@ -1,0 +1,26 @@
+# Configuration des pipelines (chemins de données)
+pipelines:
+  brest:
+    data:
+      input: "data/brest/"    # Répertoire contenant les CSV/Parquet PMSI (source SNDS)
+      output: "reports/brest/" # Répertoire de sortie des CRH générés
+  aphp:
+    data:
+      input: "data/aphp/"     # Répertoire contenant les CSV/Parquet PMSI (source ATIH)
+      output: "reports/aphp/" # Répertoire de sortie des CRH générés
+
+# Configuration des serveurs LLM
+servers:
+  ollama:
+    host: "http://localhost:11434"
+    model: "mistral"
+
+  claude:
+    api_key: ""               # Renseigner ANTHROPIC_API_KEY
+    model: "claude-sonnet-4-6"
+    verify: true              # true | false | chemin vers bundle CA (.pem)
+
+  mistral:
+    api_key: ""               # Renseigner MISTRAL_API_KEY
+    model: "mistral-large-latest"
+    verify: true
