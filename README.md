@@ -322,22 +322,6 @@ class MonPipeline(BasePipeline):
 ```
 
 Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
-
-## Ajouter un pipeline
-
-Créer une classe héritant de `BasePipeline` et implémenter les 4 méthodes :
-
-```python
-from pipelines.pipeline import BasePipeline
-
-class MonPipeline(BasePipeline):
-    name = "mon_pipeline"
-
-    def check_data(self) -> None:
-        """Verify that source data is present and prepare it if needed."""
-        # Ajoutez des messages de log pour faciliter le débogage
-        self.logger.info("Vérification des données d'entrée pour le pipeline %s.", self.name)
-        # Votre logique de vérification des données ici
         self.logger.info("Données vérifiées avec succès.")
 
     def load_data(self) -> dict[str, pl.LazyFrame]:
