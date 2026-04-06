@@ -21,6 +21,14 @@ from tqdm import tqdm
 from pipelines.pipeline import REPORT_SCHEMA, BasePipeline, _flush_batch
 from pipelines.aphp import loader, managment, prompt, scenario as sc
 
+# Alias for backward compatibility
+aphp_modules = type('APHPModules', (), {
+    'loader': loader,
+    'managment': managment,
+    'prompt': prompt,
+    'scenario': sc,
+})()
+
 
 class APHPPipeline(BasePipeline):
     """AP-HP pipeline — ATIH/PMSI-based synthetic CRH generation.
@@ -43,19 +51,24 @@ class APHPPipeline(BasePipeline):
 
     def check_data(self) -> None:
         """Verify that the PMSI input directory exists and contains expected files."""
+        self.logger.info("Vérification des données d'entrée pour le pipeline AP-HP.")
         input_dir = Path(self.config["data"]["input"])
         if not input_dir.is_dir():
+            self.logger.error("Le répertoire de données AP-HP est introuvable : %s", input_dir)
             raise FileNotFoundError(
                 f"Le répertoire de données AP-HP est introuvable : {input_dir}\n"
                 "Créez ce répertoire et déposez-y les fichiers PMSI "
                 "(scenarios_*.parquet, bn_pmsi_related_diag_*.csv, bn_pmsi_procedures_*.csv)."
             )
 
+        self.logger.info("Chargement des fichiers PMSI depuis %s.", input_dir)
         # Probe each expected pattern — raises FileNotFoundError with a clear message
         aphp_modules.loader.load_pmsi(input_dir)
+        self.logger.info("Fichiers PMSI chargés avec succès.")
 
         referentials_dir = Path(self.config["data"]["referentials"])
         if not referentials_dir.is_dir():
+            self.logger.error("Le répertoire des référentiels AP-HP est introuvable : %s", referentials_dir)
             raise FileNotFoundError(
                 f"Le répertoire des référentiels AP-HP est introuvable : {referentials_dir}\n"
                 "Configurez 'data.referentials' dans servers.yaml et copiez-y les "
@@ -111,9 +124,11 @@ class APHPPipeline(BasePipeline):
 
         # -- Build context objects (materialise all code sets)
         pbar.set_description("Construction contexte")
+        self.logger.info("Construction du contexte pour le pipeline AP-HP.")
         sc_ctx = sc.build_context(data)
         mg_ctx = managment.build_context(data, sc_ctx.cancer_codes, sc_ctx.chronic_codes)
         atih_rules = loader.load_atih_rules()
+        self.logger.info("Contexte construit avec succès.")
 
         # Stash for get_scenario
         self._sc_ctx = sc_ctx
@@ -201,7 +216,9 @@ class APHPPipeline(BasePipeline):
         Requires :meth:`get_fictive` to have been called first (it stashes the
         context objects on ``self``).
         """
+        self.logger.info("Formatage des scénarios pour %d séjours.", len(df))
         if self._sc_ctx is None or self._atih_rules is None:
+            self.logger.error("Le contexte n'est pas initialisé. Appelez get_fictive() avant get_scenario().")
             raise RuntimeError(
                 "Appelez get_fictive() avant get_scenario() : le contexte n'est pas "
                 "encore initialisé."
@@ -222,6 +239,7 @@ class APHPPipeline(BasePipeline):
             user_prompts.append(prompt.make_user_prompt(row, cancer_codes, atih_rules))
             system_prompts.append(prompt.load_system_prompt(row["template_name"]))
 
+        self.logger.info("Formatage des scénarios terminé avec succès.")
         return df.with_columns(
             pl.Series("scenario", user_prompts, dtype=pl.Utf8),
             pl.Series("system_prompt", system_prompts, dtype=pl.Utf8),

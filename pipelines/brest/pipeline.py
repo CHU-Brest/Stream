@@ -43,17 +43,24 @@ class BrestPipeline(BasePipeline):
     def check_data(self) -> None:
         """Convert PMSI CSV files to Parquet if not already present."""
         input_dir = Path(self.config["data"]["input"])
+        self.logger.info("Vérification des données d'entrée pour le pipeline Brest.")
 
         for name, csv_file in self.SOURCES.items():
             parquet = input_dir / f"{name}.parquet"
             if parquet.exists():
+                self.logger.debug("Le fichier Parquet %s existe déjà.", parquet)
                 continue
+            csv_path = input_dir / csv_file
+            if not csv_path.exists():
+                raise FileNotFoundError(f"Le fichier CSV {csv_path} est introuvable.")
+            self.logger.info("Conversion du fichier CSV %s en Parquet.", csv_path)
             pl.read_csv(
-                input_dir / csv_file,
+                csv_path,
                 separator=";",
                 encoding="latin-1",
                 infer_schema_length=10000,
             ).write_parquet(parquet)
+            self.logger.info("Fichier Parquet %s créé avec succès.", parquet)
 
         self.logger.info("Les données de génération sont présentes et valides.")
 
