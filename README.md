@@ -157,6 +157,18 @@ Les tests couvrent :
 - La vérification des données d'entrée
 - L'intégration des pipelines avec le runner
 
+## Architecture des Pipelines
+
+Les pipelines suivent une architecture modulaire avec trois étapes principales :
+
+```
+get_fictive() → get_scenario() → get_report()
+```
+
+1. **get_fictive()** : Génère des séjours fictifs à partir des données chargées.
+2. **get_scenario()** : Transforme les séjours fictifs en scénarios textuels pour le LLM.
+3. **get_report()** : Génère les comptes rendus d'hospitalisation (CRH) à partir des scénarios.
+
 ## Ajouter un pipeline
 
 Créer une classe héritant de `BasePipeline` et implémenter les 4 méthodes :
