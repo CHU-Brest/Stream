@@ -21,18 +21,22 @@ Stream/
 │   ├── config.py                 # Chargement YAML
 │   └── logger.py                 # Logger console
 ├── pipelines/
-│   ├── base.py                   # Socle commun (wrappers LLM, get_report, get_client)
-│   ├── pipeline_brest.py         # Pipeline Brest (tirage pondéré PMSI)
-│   └── pipeline_aphp.py          # Pipeline AP-HP (implémenté)
-├── pipelines/aphp/
-│   ├── loader.py                 # Chargement des référentiels et données PMSI
-│   ├── scenario.py               # Construction des scénarios cliniques
-│   ├── managment.py              # Classification des types de prise en charge
-│   ├── prompt.py                 # Génération des prompts utilisateur et système
-│   ├── sampler.py                # Échantillonnage et génération aléatoire
-│   ├── constants.py              # Constantes et listes de codes
-│   ├── referentials/             # Référentiels AP-HP (ICD-10, CCAM, GHM, etc.)
-│   └── templates/                # Modèles de prompts système
+│   ├── __init__.py               # Expose BrestPipeline, APHPPipeline, et BasePipeline
+│   ├── pipeline.py               # Code commun aux deux pipelines
+│   ├── brest/
+│   │   ├── __init__.py           # Expose BrestPipeline
+│   │   └── pipeline.py           # Pipeline Brest spécifique
+│   └── aphp/
+│       ├── __init__.py           # Expose les modules AP-HP et APHPPipeline
+│       ├── pipeline.py           # Pipeline AP-HP spécifique
+│       ├── loader.py             # Chargement des référentiels et données PMSI
+│       ├── scenario.py           # Construction des scénarios cliniques
+│       ├── managment.py          # Classification des types de prise en charge
+│       ├── prompt.py             # Génération des prompts utilisateur et système
+│       ├── sampler.py            # Échantillonnage et génération aléatoire
+│       ├── constants.py          # Constantes et listes de codes
+│       ├── referentials/         # Référentiels AP-HP (ICD-10, CCAM, GHM, etc.)
+│       └── templates/            # Modèles de prompts système
 └── config/
     ├── prompts.yaml              # System prompts LLM
     └── servers.example.yaml      # Template config (copier vers servers.yaml)
@@ -138,20 +142,59 @@ reports/brest/medical_reports_1000_20260405_143022.parquet
 
 Schéma : `generation_id`, `scenario`, `report`, `model`, `timestamp`.
 
+## Tests
+
+Pour exécuter les tests unitaires, utilisez la commande suivante :
+
+```bash
+python -m pytest tests/ -v
+```
+
+Les tests couvrent :
+- L'initialisation des pipelines Brest et AP-HP
+- La vérification des données d'entrée
+- L'intégration des pipelines avec le runner
+
 ## Ajouter un pipeline
 
 Créer une classe héritant de `BasePipeline` et implémenter les 4 méthodes :
 
 ```python
-from pipelines.base import BasePipeline
+from pipelines.pipeline import BasePipeline
 
 class MonPipeline(BasePipeline):
     name = "mon_pipeline"
 
-    def check_data(self) -> None: ...
-    def load_data(self) -> dict[str, pl.LazyFrame]: ...
-    def get_fictive(self, data, **kwargs) -> pl.DataFrame: ...
-    def get_scenario(self, df) -> pl.DataFrame: ...
+    def check_data(self) -> None:
+        """Verify that source data is present and prepare it if needed."""
+        # Ajoutez des messages de log pour faciliter le débogage
+        self.logger.info("Vérification des données d'entrée pour le pipeline %s.", self.name)
+        # Votre logique de vérification des données ici
+        self.logger.info("Données vérifiées avec succès.")
+
+    def load_data(self) -> dict[str, pl.LazyFrame]:
+        """Load prepared data as LazyFrames."""
+        # Ajoutez des messages de log pour suivre le chargement des données
+        self.logger.info("Chargement des données pour le pipeline %s.", self.name)
+        # Votre logique de chargement des données ici
+        self.logger.info("Données chargées avec succès.")
+        return {}
+
+    def get_fictive(self, data, **kwargs) -> pl.DataFrame:
+        """Generate fictitious hospital stays from loaded data."""
+        # Ajoutez des messages de log pour suivre la génération des séjours fictifs
+        self.logger.info("Génération de %d séjours fictifs.", kwargs.get("n_sejours", 1000))
+        # Votre logique de génération des séjours fictifs ici
+        self.logger.info("Génération des séjours fictifs terminée avec succès.")
+        return pl.DataFrame()
+
+    def get_scenario(self, df) -> pl.DataFrame:
+        """Transform fictitious stays into text scenarios for the LLM."""
+        # Ajoutez des messages de log pour suivre le formatage des scénarios
+        self.logger.info("Formatage des scénarios pour %d séjours.", len(df))
+        # Votre logique de formatage des scénarios ici
+        self.logger.info("Formatage des scénarios terminé avec succès.")
+        return df
 ```
 
 Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
