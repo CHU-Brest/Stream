@@ -214,16 +214,47 @@ Module responsable de la génération de rapports CRH via appels LLM.
 
 ## Comparaison des Pipelines
 
+```mermaid
+flowchart TD
+    subgraph Source["Source de données (ATIH)"]
+        A["Base nationale ATIH"]
+    end
+
+    subgraph Brest["Pipeline Brest"]
+        B1["Extraction CHU Brest"] --> B2["CSV: DP/DAS/DMS/CCAM"]
+        B2 --> B3["Tirage pondéré simple"]
+        B3 --> B4["Scénarios génériques"]
+        B4 --> B5["Templates LLM basiques"]
+    end
+
+    subgraph APHP["Pipeline AP-HP"]
+        A2["Extraction AP-HP"] --> A3["Parquet: Scénarios PMSI"]
+        A3 --> A4["Tirage + règles ATIH"]
+        A4 --> A5["Scénarios enrichis"]
+        A5 --> A6["Templates LLM spécifiques"]
+        A6 --> A7["Validation ATIH"]
+    end
+
+    A --> B1
+    A --> A2
+
+    style Source fill:#f9f,stroke:#333
+    style Brest fill:#bbf,stroke:#333
+    style APHP fill:#bfb,stroke:#333
+```
+
+### Différences clés
+
 | Aspect | Pipeline Brest (CHU Brest) | Pipeline AP-HP (Paris) |
 |--------|----------------------------|-------------------------|
-| **Source de données** | ATIH (Base nationale) | ATIH (Base nationale) |
-| **Méthode de tirage** | Pondéré DP/CCAM/DAS/DMS | Pondéré PMSI + règles ATIH |
-| **Modules communs** | fictive.py, scenario.py | fictive.py, scenario.py, report.py |
-| **Logique métier** | Simple (CHU Brest) | Complexe (référentiels ATIH) |
+| **Extraction** | Scripts CHU Brest | Scripts AP-HP spécifiques |
+| **Format** | CSV (DP/DAS/DMS/CCAM) | Parquet (scénarios PMSI) |
+| **Tirage** | Pondéré simple | Pondéré + règles ATIH |
+| **Modules** | fictive.py, scenario.py | + report.py personnalisé |
 | **Classification** | Basique | MCO/SSR/HAD (managment.py) |
 | **Validation** | Standard | Règles ATIH spécifiques |
 | **Templates** | Génériques | Spécifiques AP-HP |
-| **Sur-couche** | Non | Oui (prompts enrichis) |
+| **Complexité** | Simple | Sur-couche métier |
 
 ## Intégration dans les pipelines
 
