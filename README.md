@@ -302,3 +302,27 @@ class MonPipeline(BasePipeline):
 ```
 
 Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
+
+## Prochaines étapes pour la fusion des pipelines
+
+Pour achever la fusion complète des pipelines Brest et AP-HP, les étapes suivantes restent à réaliser :
+
+### 1. Harmonisation des interfaces
+- [ ] Aligner les signatures des méthodes `get_report()` entre les pipelines
+- [ ] Standardiser les paramètres d'entrée/sortie
+- [ ] Unifier les structures de données intermédiaires
+
+### 2. Refactoring du code spécifique
+- [ ] Extraire la logique métier AP-HP dans des modules dédiés
+- [ ] Créer des adaptateurs pour les spécificités Brest
+- [ ] Documenter les points de divergence nécessaires
+
+### 3. Tests et validation
+- [ ] Ajouter des tests d'intégration croisés
+- [ ] Valider la compatibilité des données entre pipelines
+- [ ] Benchmarker les performances post-fusion
+
+### 4. Documentation finale
+- [ ] Mettre à jour les diagrammes d'architecture
+- [ ] Documenter les décisions de conception
+- [ ] Ajouter des exemples d'extension pour nouveaux pipelines
