@@ -21,8 +21,11 @@ Stream/
 │   ├── config.py                 # Chargement YAML
 │   └── logger.py                 # Logger console
 ├── pipelines/
-│   ├── __init__.py               # Expose BrestPipeline, APHPPipeline, et BasePipeline
-│   ├── pipeline.py               # Code commun aux deux pipelines
+│   ├── __init__.py               # Expose les pipelines et modules communs
+│   ├── pipeline.py               # Classes de base et clients LLM
+│   ├── fictive.py               # Génération de séjours fictifs (Brest/AP-HP)
+│   ├── scenario.py              # Transformation en scénarios textuels
+│   ├── report.py                # Génération de rapports CRH via LLM
 │   ├── brest/
 │   │   ├── __init__.py           # Expose BrestPipeline, constants, sampler
 │   │   ├── pipeline.py           # Pipeline Brest spécifique
@@ -168,6 +171,73 @@ get_fictive() → get_scenario() → get_report()
 1. **get_fictive()** : Génère des séjours fictifs à partir des données chargées.
 2. **get_scenario()** : Transforme les séjours fictifs en scénarios textuels pour le LLM.
 3. **get_report()** : Génère les comptes rendus d'hospitalisation (CRH) à partir des scénarios.
+
+## Modules communs
+
+Trois nouveaux modules ont été ajoutés pour centraliser la logique commune entre les pipelines :
+
+### `pipelines/fictive.py`
+
+Module responsable de la génération de séjours fictifs à partir des données PMSI.
+
+**Fonction principale** :
+- `generate_fictive_stays(data, n_sejours, pipeline_type, **kwargs)`
+
+**Responsabilités** :
+- Génération de séjours fictifs pour les pipelines Brest et AP-HP
+- Logique d'échantillonnage spécifique à chaque pipeline
+- Réduction de la duplication de code
+
+### `pipelines/scenario.py`
+
+Module responsable de la transformation des séjours fictifs en scénarios textuels pour les LLM.
+
+**Fonction principale** :
+- `format_scenarios(df, pipeline_type, **kwargs)`
+
+**Responsabilités** :
+- Transformation des séjours en prompts textuels
+- Formatage spécifique Brest (simple) et AP-HP (riche)
+- Gestion des templates et règles ATIH
+
+### `pipelines/report.py`
+
+Module responsable de la génération de rapports CRH via appels LLM.
+
+**Fonction principale** :
+- `generate_reports(df, client, model, batch_size, output_dir, pipeline_type)`
+
+**Responsabilités** :
+- Interaction avec les clients LLM (Anthropic, Mistral, Ollama)
+- Gestion des batches et persistance des résultats
+- Formatage des réponses LLM
+
+## Intégration dans les pipelines
+
+Les pipelines Brest et AP-HP ont été mis à jour pour utiliser ces modules communs :
+
+### Brest Pipeline
+```python
+class BrestPipeline(BasePipeline):
+    def get_fictive(self, data, **kwargs):
+        return generate_fictive_stays(data, pipeline_type="brest", **kwargs)
+    
+    def get_scenario(self, df):
+        return format_scenarios(df, pipeline_type="brest")
+```
+
+### AP-HP Pipeline
+```python
+class APHPPipeline(BasePipeline):
+    def get_fictive(self, data, **kwargs):
+        return generate_fictive_stays(data, pipeline_type="aphp", **kwargs)
+    
+    def get_scenario(self, df):
+        return format_scenarios(df, pipeline_type="aphp", **kwargs)
+    
+    def get_report(self, df, client, model, **kwargs):
+        return generate_reports(df, client, model, pipeline_type="aphp", **kwargs)
+```
 
 ## Ajouter un pipeline
 

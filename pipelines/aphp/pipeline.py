@@ -8,26 +8,16 @@ as needed.
 
 from __future__ import annotations
 
-import random as _random
-import uuid
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import polars as pl
-from tqdm import tqdm
 
-from pipelines.pipeline import REPORT_SCHEMA, BasePipeline, _flush_batch
-from pipelines.aphp import loader, managment, prompt, scenario as sc
-
-# Alias for backward compatibility
-aphp_modules = type('APHPModules', (), {
-    'loader': loader,
-    'managment': managment,
-    'prompt': prompt,
-    'scenario': sc,
-})()
+from pipelines.pipeline import BasePipeline
+from pipelines.fictive import generate_fictive_stays
+from pipelines.scenario import format_scenarios
+from pipelines.report import generate_reports
+from pipelines.aphp import loader, prompt
 
 
 class APHPPipeline(BasePipeline):
@@ -63,7 +53,7 @@ class APHPPipeline(BasePipeline):
 
         self.logger.info("Chargement des fichiers PMSI depuis %s.", input_dir)
         # Probe each expected pattern — raises FileNotFoundError with a clear message
-        aphp_modules.loader.load_pmsi(input_dir)
+        loader.load_pmsi(input_dir)
         self.logger.info("Fichiers PMSI chargés avec succès.")
 
         referentials_dir = Path(self.config["data"]["referentials"])
@@ -83,7 +73,7 @@ class APHPPipeline(BasePipeline):
 
     def load_data(self) -> dict[str, pl.LazyFrame]:
         """Return all referentials + PMSI extracts as ``LazyFrame`` objects."""
-        return aphp_modules.loader.load_data(
+        return loader.load_data(
             self.config["data"]["input"],
             self.config["data"]["referentials"],
         )
@@ -116,95 +106,12 @@ class APHPPipeline(BasePipeline):
             One row per scenario. Contains all clinical fields plus
             ``generation_id``, ``situa``, ``coding_rule``, ``template_name``.
         """
-        rng = _random.Random(seed)
-        np_rng = np.random.default_rng(seed)
-
-        steps = ["Contexte", "Profils", "Scénarios"]
-        pbar = tqdm(steps, desc="AP-HP génération", unit="étape")
-
-        # -- Build context objects (materialise all code sets)
-        pbar.set_description("Construction contexte")
-        self.logger.info("Construction du contexte pour le pipeline AP-HP.")
-        sc_ctx = sc.build_context(data)
-        mg_ctx = managment.build_context(data, sc_ctx.cancer_codes, sc_ctx.chronic_codes)
-        atih_rules = loader.load_atih_rules()
-        self.logger.info("Contexte construit avec succès.")
-
-        # Stash for get_scenario
-        self._sc_ctx = sc_ctx
-        self._mg_ctx = mg_ctx
-        self._atih_rules = atih_rules
-        pbar.update(1)
-
-        # -- Prepare profiles: join descriptions + LOS stats + specialty
-        pbar.set_description("Chargement profils")
-        profiles_df = sc_ctx.profiles  # already collected
-
-        # Join drg_parent_description if not already present
-        if "drg_parent_description" not in profiles_df.columns:
-            drg_descr = (
-                data["drg_parents_groups"]
-                .select(["drg_parent_code", "drg_parent_description"])
-                .collect()
-            )
-            profiles_df = profiles_df.join(drg_descr, on="drg_parent_code", how="left")
-
-        # Join LOS stats (los_mean, los_sd) if absent
-        missing_los = "los_mean" not in profiles_df.columns or "los_sd" not in profiles_df.columns
-        if missing_los:
-            los_stats = (
-                data["drg_statistics"]
-                .select(["drg_parent_code", "los_mean", "los_sd"])
-                .collect()
-            )
-            profiles_df = profiles_df.join(los_stats, on="drg_parent_code", how="left")
-
-        # Join dominant specialty if absent
-        if "specialty" not in profiles_df.columns:
-            spe = (
-                data["specialty"]
-                .collect()
-                .group_by("drg_parent_code")
-                .agg(pl.col("specialty").first())
-            )
-            profiles_df = profiles_df.join(spe, on="drg_parent_code", how="left")
-
-        # Weighted sampling (weight = nb count)
-        if "nb" in profiles_df.columns:
-            weights = profiles_df["nb"].cast(pl.Float64).fill_null(1.0).to_numpy().copy()
-        else:
-            weights = np.ones(len(profiles_df))
-        weights /= weights.sum()
-
-        indices = np_rng.choice(len(profiles_df), size=n_sejours, replace=True, p=weights)
-        sampled = profiles_df[indices]
-        pbar.update(1)
-
-        # -- Build one scenario per sampled profile
-        pbar.set_description("Construction scénarios")
-        rows: list[dict[str, Any]] = []
-        for profile in tqdm(
-            sampled.iter_rows(named=True),
-            desc="Scénarios",
-            unit="séjour",
-            total=n_sejours,
-            leave=False,
-        ):
-            sc_dict = sc.build_scenario(sc_ctx, profile, rng=rng, np_rng=np_rng)
-
-            # Management decision (coding rule + situa text + template)
-            dec = managment.define_managment_type(sc_dict, mg_ctx, np_rng=np_rng)
-            sc_dict["situa"] = dec.situa
-            sc_dict["coding_rule"] = dec.coding_rule
-            sc_dict["template_name"] = dec.template_name
-
-            sc_dict["generation_id"] = str(uuid.uuid4())
-            rows.append(sc_dict)
-
-        pbar.update(1)
-        pbar.close()
-
-        return _dicts_to_df(rows)
+        return generate_fictive_stays(
+            data,
+            n_sejours=n_sejours,
+            pipeline_type="aphp",
+            seed=seed,
+        )
 
     # ------------------------------------------------------------------
     # 4 — get_scenario
@@ -216,33 +123,21 @@ class APHPPipeline(BasePipeline):
         Requires :meth:`get_fictive` to have been called first (it stashes the
         context objects on ``self``).
         """
-        self.logger.info("Formatage des scénarios pour %d séjours.", len(df))
-        if self._sc_ctx is None or self._atih_rules is None:
-            self.logger.error("Le contexte n'est pas initialisé. Appelez get_fictive() avant get_scenario().")
-            raise RuntimeError(
-                "Appelez get_fictive() avant get_scenario() : le contexte n'est pas "
-                "encore initialisé."
-            )
-
-        cancer_codes = self._sc_ctx.cancer_codes
-        atih_rules = self._atih_rules
-
-        user_prompts: list[str] = []
-        system_prompts: list[str] = []
-
-        for row in tqdm(
-            df.iter_rows(named=True),
-            desc="Formatage prompts",
-            unit="séjour",
-            total=len(df),
-        ):
-            user_prompts.append(prompt.make_user_prompt(row, cancer_codes, atih_rules))
-            system_prompts.append(prompt.load_system_prompt(row["template_name"]))
-
-        self.logger.info("Formatage des scénarios terminé avec succès.")
-        return df.with_columns(
-            pl.Series("scenario", user_prompts, dtype=pl.Utf8),
-            pl.Series("system_prompt", system_prompts, dtype=pl.Utf8),
+        # Load ATIH rules for scenario formatting
+        atih_rules = loader.load_atih_rules()
+        
+        # Import here to avoid circular imports
+        from pipelines.aphp import scenario as sc
+        
+        # Rebuild context to get cancer codes (this could be optimized)
+        data = self.load_data()
+        sc_ctx = sc.build_context(data)
+        
+        return format_scenarios(
+            df,
+            pipeline_type="aphp",
+            cancer_codes=sc_ctx.cancer_codes,
+            atih_rules=atih_rules,
         )
 
     # ------------------------------------------------------------------
@@ -261,88 +156,14 @@ class APHPPipeline(BasePipeline):
         Overrides :meth:`~pipelines.pipeline.BasePipeline.get_report` to read
         ``df_row["system_prompt"]`` instead of a single global system prompt.
         """
-        if "generation_id" not in df.columns:
-            raise ValueError(
-                "Le DataFrame doit contenir une colonne 'generation_id'. "
-                "Assurez-vous de passer par get_fictive avant get_report."
-            )
-        if "system_prompt" not in df.columns:
-            raise ValueError(
-                "Le DataFrame doit contenir une colonne 'system_prompt'. "
-                "Assurez-vous de passer par get_scenario avant get_report."
-            )
-
-        output_dir = Path(self.config["data"]["output"])
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        results: list[dict] = []
-        batch: list[dict] = []
-
-        for df_row in tqdm(
-            df.iter_rows(named=True),
-            desc="Génération CRH",
-            unit="crh",
-            total=len(df),
-        ):
-            response = client.chat(
-                model=model,
-                messages=[
-                    {"role": "system", "content": df_row["system_prompt"]},
-                    {"role": "user", "content": df_row["scenario"]},
-                ],
-            )
-            row = {
-                "generation_id": df_row["generation_id"],
-                "scenario": df_row["scenario"],
-                "report": response["message"]["content"],
-                "model": model,
-                "timestamp": datetime.now(),
-            }
-            results.append(row)
-            batch.append(row)
-
-            if len(batch) >= batch_size:
-                _flush_batch(batch, output_dir, batch_size)
-                batch = []
-
-        if batch:
-            _flush_batch(batch, output_dir, len(batch))
-
-        return pl.DataFrame(results, schema=REPORT_SCHEMA)
+        return generate_reports(
+            df,
+            client,
+            model,
+            batch_size=batch_size,
+            output_dir=self.config["data"]["output"],
+            pipeline_type="aphp",
+        )
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _dicts_to_df(rows: list[dict[str, Any]]) -> pl.DataFrame:
-    """Convert a list of scenario dicts to a Polars DataFrame.
-
-    Polars requires all series to have the same type. We cast list-valued
-    columns (``icd_secondary_code``) to ``pl.List(pl.Utf8)`` explicitly and
-    fall back to ``pl.Utf8`` for anything else that isn't already a scalar.
-    """
-    if not rows:
-        return pl.DataFrame()
-
-    columns: dict[str, pl.Series] = {}
-    all_keys = list(rows[0].keys())
-
-    for key in all_keys:
-        values = [r.get(key) for r in rows]
-        # List-valued columns → List(Utf8)
-        if any(isinstance(v, list) for v in values):
-            columns[key] = pl.Series(
-                key,
-                [v if isinstance(v, list) else [] for v in values],
-                dtype=pl.List(pl.Utf8),
-            )
-        else:
-            try:
-                columns[key] = pl.Series(key, values)
-            except Exception:
-                # Last resort: stringify everything
-                columns[key] = pl.Series(key, [str(v) if v is not None else None for v in values], dtype=pl.Utf8)
-
-    return pl.DataFrame(columns)
+# The _dicts_to_df helper is now in pipelines.fictive.py

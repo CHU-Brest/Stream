@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.config import load_config
-from pipelines.pipeline_aphp import APHPPipeline
-from pipelines.pipeline_brest import BrestPipeline
+from pipelines.brest.pipeline import BrestPipeline
+from pipelines.aphp.pipeline import APHPPipeline
 
 PIPELINES = {
     "brest": BrestPipeline,
