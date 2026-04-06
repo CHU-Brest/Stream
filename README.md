@@ -7,7 +7,7 @@ Stream unifie plusieurs méthodes de génération au sein d'une architecture com
 | Pipeline | Source de données | Méthode | Statut |
 |----------|-------------------|---------|--------|
 | **Brest** | SNDS (Oracle) | Tirage pondéré DP/CCAM/DAS/DMS + LLM | Implémenté |
-| **AP-HP** | ATIH (SAS BD) | À définir | En attente |
+| **AP-HP** | ATIH (SAS BD) | Tirage pondéré PMSI + LLM | Implémenté |
 
 Projets de référence : [Doppelgänger](https://github.com/CHU-Brest/doppelganger) (CHU Brest) et [Recode-Scenario](https://github.com/24p11/recode-scenario) (AP-HP).
 
@@ -23,7 +23,16 @@ Stream/
 ├── pipelines/
 │   ├── base.py                   # Socle commun (wrappers LLM, get_report, get_client)
 │   ├── pipeline_brest.py         # Pipeline Brest (tirage pondéré PMSI)
-│   └── pipeline_aphp.py          # Pipeline AP-HP (à implémenter)
+│   └── pipeline_aphp.py          # Pipeline AP-HP (implémenté)
+├── pipelines/aphp/
+│   ├── loader.py                 # Chargement des référentiels et données PMSI
+│   ├── scenario.py               # Construction des scénarios cliniques
+│   ├── managment.py              # Classification des types de prise en charge
+│   ├── prompt.py                 # Génération des prompts utilisateur et système
+│   ├── sampler.py                # Échantillonnage et génération aléatoire
+│   ├── constants.py              # Constantes et listes de codes
+│   ├── referentials/             # Référentiels AP-HP (ICD-10, CCAM, GHM, etc.)
+│   └── templates/                # Modèles de prompts système
 └── config/
     ├── prompts.yaml              # System prompts LLM
     └── servers.example.yaml      # Template config (copier vers servers.yaml)
@@ -82,6 +91,18 @@ Déposer les CSV suivants dans le répertoire `data.input` configuré :
 
 Ces fichiers sont produits par les scripts SAS d'extraction (`liabilities/extract_pmsi_tables_SNDS.sas`).
 
+### Données d'entrée (pipeline AP-HP)
+
+Déposer les fichiers suivants dans le répertoire `data.input` configuré :
+
+| Fichier | Contenu |
+|---------|---------|
+| `scenarios_*.parquet` | Profils PMSI avec diagnostics principaux et associés |
+| `bn_pmsi_related_diag_*.csv` | Diagnostics associés par GHM |
+| `bn_pmsi_procedures_*.csv` | Actes CCAM par GHM |
+
+Ces fichiers sont produits par les scripts d'extraction ATIH. Les référentiels AP-HP doivent être placés dans `data.referentials`.
+
 ## Utilisation
 
 ```bash
@@ -102,8 +123,8 @@ python cli.py brest --client mistral --n-ccam 3 --n-das 4
 | `pipeline` | — | `brest` ou `aphp` |
 | `--client` | `ollama` | `ollama`, `claude` ou `mistral` |
 | `--n-sejours` | 1000 | Nombre de séjours fictifs |
-| `--n-ccam` | 1 | Nombre max d'actes CCAM par séjour |
-| `--n-das` | 5 | Nombre max de diagnostics associés |
+| `--n-ccam` | 1 | Nombre max d'actes CCAM par séjour (Brest uniquement) |
+| `--n-das` | 5 | Nombre max de diagnostics associés (Brest uniquement) |
 | `--ghm5` | — | Filtre sur les codes GHM5 (ex. `06C`) |
 | `--batch-size` | 1000 | Lignes par fichier Parquet de sortie |
 
