@@ -303,81 +303,37 @@ class MonPipeline(BasePipeline):
 
 Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
 
-## Prochaines étapes pour la fusion des pipelines
+## Roadmap de fusion
 
-Pour achever la fusion complète des pipelines Brest et AP-HP, les étapes suivantes restent à réaliser :
+### Étapes techniques
 
-### 1. Harmonisation des interfaces
-- [ ] Aligner les signatures des méthodes `get_report()` entre les pipelines
-- [ ] Standardiser les paramètres d'entrée/sortie
-- [ ] Unifier les structures de données intermédiaires
+1. **Unification des interfaces**
+   - Aligner `get_report()` entre pipelines
+   - Standardiser les structures de données
+   - Créer des adaptateurs pour les spécificités
 
-### 2. Refactoring du code spécifique
-- [ ] Extraire la logique métier AP-HP dans des modules dédiés
-- [ ] Créer des adaptateurs pour les spécificités Brest
-- [ ] Documenter les points de divergence nécessaires
+2. **Refactoring ciblé**
+   - Extraire la logique métier AP-HP
+   - Documenter les divergences nécessaires
+   - Optimiser les performances
 
-### 3. Tests et validation
-- [ ] Ajouter des tests d'intégration croisés
-- [ ] Valider la compatibilité des données entre pipelines
-- [ ] Benchmarker les performances post-fusion
+3. **Validation complète**
+   - Tests d'intégration croisés
+   - Benchmarking comparatif
+   - Validation des données
 
-### 4. Documentation finale
-- [ ] Mettre à jour les diagrammes d'architecture
-- [ ] Documenter les décisions de conception
-- [ ] Ajouter des exemples d'extension pour nouveaux pipelines
+### Décisions architecturales clés
 
-## Points méthodologiques clés à trancher
+| Décision | Options | Critères principaux |
+|----------|---------|---------------------|
+| **Référentiels** | Séparés / Unifiés / Plugins | Maintenabilité, Performance, Flexibilité |
+| **Règles métiers** | Modules / Configurable / Moteur générique | Complexité, Flexibilité, Performance |
+| **Validation** | Stricte / Progressive / Scoring | Robustesse, UX, Maintenabilité |
+| **Templates** | Séparés / Unifié / Composition | Cohérence, Flexibilité, Maintenabilité |
 
-### Décisions architecturales critiques
+### Processus décisionnel
 
-#### 1. Stratégie de fusion des référentiels
-**Options :**
-- A. Conserver des référentiels séparés (Brest: SNDS, AP-HP: ATIH)
-- B. Créer un référentiel unifié avec mappings entre systèmes
-- C. Implémenter un système de plugins pour référentiels
-
-**Critères de décision :**
-- Maintenabilité à long terme
-- Performance des requêtes
-- Flexibilité pour nouveaux partenaires
-
-#### 2. Gestion des règles métiers spécifiques
-**Options :**
-- A. Modules spécifiques par établissement (actuel)
-- B. Système de règles configurables (YAML/JSON)
-- C. Moteur de règles générique avec plugins
-
-**Impact :**
-- Complexité de développement
-- Flexibilité pour nouveaux cas d'usage
-- Performance d'exécution
-
-#### 3. Stratégie de validation des données
-**Options :**
-- A. Validation stricte en amont (échec rapide)
-- B. Validation progressive avec warnings
-- C. Système de scoring de qualité
-
-**Conséquences :**
-- Robustesse vs. tolérance aux erreurs
-- Expérience utilisateur
-- Maintenabilité
-
-#### 4. Approche pour les templates LLM
-**Options :**
-- A. Templates séparés par établissement
-- B. Template unifié avec sections conditionnelles
-- C. Système de composition de templates
-
-**Enjeux :**
-- Cohérence des sorties
-- Flexibilité
-- Maintenabilité
-
-### Processus de décision recommandé
-
-1. **Ateliers collaboratifs** : Réunions avec les équipes Brest et AP-HP pour aligner les besoins
-2. **Prototypage** : Implémentation de preuves de concept pour les options critiques
-3. **Benchmarking** : Évaluation des performances et maintenabilité
-4. **Documentation** : Formalisation des décisions dans des ADR (Architecture Decision Records)
+1. Ateliers Brest/AP-HP pour alignement
+2. Prototypage des options critiques
+3. Benchmarking technique
+4. Documentation dans des ADR
