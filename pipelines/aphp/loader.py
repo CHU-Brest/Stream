@@ -1,18 +1,19 @@
 """Lazy loaders for AP-HP referentials and PMSI input data.
 
-Exposes a single :func:`load_data` function that returns a dictionary of
-``polars.LazyFrame`` objects covering everything the AP-HP scenario pipeline
-needs:
+Exposes two entry points:
 
-- **Referentials** (versioned in this repo, see ``pipelines/aphp/referentials``):
-  ICD-10 official codes, synonyms, GHM stats, French names, ATIH cancer
-  methodology tables, specialised ICD code lists, etc.
-- **PMSI input data** (user-provided, lives in ``self.config["data"]["input"]``):
-  classification profiles, secondary diagnoses, procedures.
+- :func:`load_referentials` — returns versioned referential tables (ICD-10,
+  CCAM, GHM stats, French names, cancer methodology, …) as ``LazyFrame``
+  objects. The directory that contains those files is user-configured (see
+  ``config/servers.yaml`` ``data.referentials`` key) so the files are kept
+  outside the repository.
+- :func:`load_pmsi` — returns the three user-provided PMSI extracts
+  (profiles, secondary ICD, procedures) from ``config["data"]["input"]``.
+- :func:`load_data` — merges both dicts into one for the pipeline.
 
 Column names are normalised to the conventions used by AP-HP's
 ``recode-scenario`` (``drg_parent_code``, ``icd_primary_code``,
-``case_management_type``, …) so downstream modules can be a 1:1 port of
+``case_management_type``, …) so downstream modules are a 1:1 port of
 ``utils_v2.py``.
 """
 
@@ -25,11 +26,10 @@ import polars as pl
 import yaml
 
 # ---------------------------------------------------------------------------
-# Paths
+# Package-level paths (templates only — referentials are external)
 # ---------------------------------------------------------------------------
 
 PACKAGE_DIR = Path(__file__).resolve().parent
-REFERENTIALS_DIR = PACKAGE_DIR / "referentials"
 TEMPLATES_DIR = PACKAGE_DIR / "templates"
 
 # ---------------------------------------------------------------------------
@@ -64,9 +64,9 @@ _CODE_LIST_FILES: dict[str, str] = {
 }
 
 
-def _scan_code_list(filename: str) -> pl.LazyFrame:
+def _scan_code_list(r: Path, filename: str) -> pl.LazyFrame:
     """Read a ``code;description`` CSV and return only the ``code`` column."""
-    return pl.scan_csv(REFERENTIALS_DIR / filename, separator=";").select("code")
+    return pl.scan_csv(r / filename, separator=";").select("code")
 
 
 # ---------------------------------------------------------------------------
@@ -74,70 +74,62 @@ def _scan_code_list(filename: str) -> pl.LazyFrame:
 # ---------------------------------------------------------------------------
 
 
-def _scan_official_icd() -> pl.LazyFrame:
+def _scan_official_icd(r: Path) -> pl.LazyFrame:
     """Official ICD-10 dictionary from ATIH 2025.
 
     The original ``LIBCIM10MULTI.TXT`` is pipe-delimited and latin-1; it is
     transcoded to UTF-8 Parquet by ``convert_referentials.py``. Mirrors
     ``generate_scenario.load_offical_icd`` (utils_v2.py:306).
     """
-    return pl.scan_parquet(
-        REFERENTIALS_DIR / "CIM_ATIH_2025" / "LIBCIM10MULTI.parquet"
-    )
+    return pl.scan_parquet(r / "CIM_ATIH_2025" / "LIBCIM10MULTI.parquet")
 
 
-def _scan_icd_synonyms() -> pl.LazyFrame:
+def _scan_icd_synonyms(r: Path) -> pl.LazyFrame:
     """Synonyms / alternative phrasings for ICD-10 codes (~16 MB)."""
     return (
-        pl.scan_csv(REFERENTIALS_DIR / "cim_synonymes.csv")
+        pl.scan_csv(r / "cim_synonymes.csv")
         .drop_nulls()
         .rename({"dictionary_keys": "icd_code_description", "code": "icd_code"})
     )
 
 
-def _scan_drg_statistics() -> pl.LazyFrame:
+def _scan_drg_statistics(r: Path) -> pl.LazyFrame:
     """Mean / SD length of stay per GHM root (``drg_parent_code``)."""
-    return pl.scan_parquet(REFERENTIALS_DIR / "stat_racines.parquet").rename(
+    return pl.scan_parquet(r / "stat_racines.parquet").rename(
         {"racine": "drg_parent_code", "dms": "los_mean", "dsd": "los_sd"}
     )
 
 
-def _scan_drg_parents_groups() -> pl.LazyFrame:
+def _scan_drg_parents_groups(r: Path) -> pl.LazyFrame:
     """GHM root descriptions and groupings (2024 ATIH classification)."""
-    return pl.scan_parquet(
-        REFERENTIALS_DIR / "ghm_rghm_regroupement_2024.parquet"
-    ).rename({"racine": "drg_parent_code", "libelle_racine": "drg_parent_description"})
-
-
-def _scan_chronic() -> pl.LazyFrame:
-    """Chronic-disease classification (code, chronic flag, libelle)."""
-    return pl.scan_parquet(REFERENTIALS_DIR / "Affections chroniques.parquet")
-
-
-def _scan_complications() -> pl.LazyFrame:
-    """ICD codes flagged as acute complications (CMA list)."""
-    return pl.scan_csv(REFERENTIALS_DIR / "cma.csv").drop_nulls()
-
-
-def _scan_names() -> pl.LazyFrame:
-    """French first/last names with gender (``sexe`` ∈ {1, 2})."""
-    return pl.scan_csv(
-        REFERENTIALS_DIR / "prenoms_nom_sexe.csv", separator=";"
-    ).drop_nulls()
-
-
-def _scan_hospitals() -> pl.LazyFrame:
-    """One-column list of CHU hospital names."""
-    return pl.scan_csv(
-        REFERENTIALS_DIR / "chu", has_header=False, new_columns=["hospital"]
+    return pl.scan_parquet(r / "ghm_rghm_regroupement_2024.parquet").rename(
+        {"racine": "drg_parent_code", "libelle_racine": "drg_parent_description"}
     )
 
 
-def _scan_specialty() -> pl.LazyFrame:
+def _scan_chronic(r: Path) -> pl.LazyFrame:
+    """Chronic-disease classification (code, chronic flag, libelle)."""
+    return pl.scan_parquet(r / "Affections chroniques.parquet")
+
+
+def _scan_complications(r: Path) -> pl.LazyFrame:
+    """ICD codes flagged as acute complications (CMA list)."""
+    return pl.scan_csv(r / "cma.csv").drop_nulls()
+
+
+def _scan_names(r: Path) -> pl.LazyFrame:
+    """French first/last names with gender (``sexe`` ∈ {1, 2})."""
+    return pl.scan_csv(r / "prenoms_nom_sexe.csv", separator=";").drop_nulls()
+
+
+def _scan_hospitals(r: Path) -> pl.LazyFrame:
+    """One-column list of CHU hospital names."""
+    return pl.scan_csv(r / "chu", has_header=False, new_columns=["hospital"])
+
+
+def _scan_specialty(r: Path) -> pl.LazyFrame:
     """Specialty ↔ DRG mapping with allocation ratios (AP-HP local)."""
-    return pl.scan_parquet(
-        REFERENTIALS_DIR / "dictionnaire_spe_racine.parquet"
-    ).rename(
+    return pl.scan_parquet(r / "dictionnaire_spe_racine.parquet").rename(
         {
             "racine": "drg_parent_code",
             "lib_spe_uma": "specialty",
@@ -146,25 +138,24 @@ def _scan_specialty() -> pl.LazyFrame:
     )
 
 
-def _scan_procedure_official() -> pl.LazyFrame:
+def _scan_procedure_official(r: Path) -> pl.LazyFrame:
     """Official CCAM procedure dictionary (2024)."""
-    return pl.scan_parquet(REFERENTIALS_DIR / "ccam_actes_2024.parquet").rename(
+    return pl.scan_parquet(r / "ccam_actes_2024.parquet").rename(
         {"code": "procedure", "libelle_long": "procedure_description"}
     )
 
 
-def _scan_cancer_codes() -> pl.LazyFrame:
+def _scan_cancer_codes(r: Path) -> pl.LazyFrame:
     """ICD-10 codes flagged as cancer by the 2014 ATIH DIM methodology."""
     return pl.scan_parquet(
-        REFERENTIALS_DIR
-        / "REFERENTIEL_METHODE_DIM_CANCER_20140411__CODES_CIM-10_CANCER.parquet"
+        r / "REFERENTIEL_METHODE_DIM_CANCER_20140411__CODES_CIM-10_CANCER.parquet"
     )
 
 
-def _scan_cancer_treatment() -> pl.LazyFrame:
+def _scan_cancer_treatment(r: Path) -> pl.LazyFrame:
     """Cancer treatment recommendations (per primary site / histology)."""
     return pl.scan_parquet(
-        REFERENTIALS_DIR / "Tableau récapitulatif traitement cancer__Feuille_1.parquet"
+        r / "Tableau récapitulatif traitement cancer__Feuille_1.parquet"
     ).rename(
         {
             "Code CIM": "icd_parent_code",
@@ -178,22 +169,22 @@ def _scan_cancer_treatment() -> pl.LazyFrame:
     )
 
 
-def _scan_icd_categ_weight() -> pl.LazyFrame:
+def _scan_icd_categ_weight(r: Path) -> pl.LazyFrame:
     """Per-ICD-category sampling weights (used by load_icd_categ_weight)."""
     return pl.scan_csv(
-        REFERENTIALS_DIR / "ponderation_code_categ.csv",
+        r / "ponderation_code_categ.csv",
         separator=";",
         decimal_comma=True,
     ).rename({"diag": "icd_code", "ponderation": "weight"})
 
 
-def _scan_exclusions() -> pl.LazyFrame:
+def _scan_exclusions(r: Path) -> pl.LazyFrame:
     """GHM groups excluded from sampling (transplants, dialysis, …)."""
-    return pl.scan_csv(REFERENTIALS_DIR / "exclusions")
+    return pl.scan_csv(r / "exclusions")
 
 
 # ---------------------------------------------------------------------------
-# ATIH coding rules (YAML, not tabular)
+# ATIH coding rules (YAML, stays in the package alongside templates)
 # ---------------------------------------------------------------------------
 
 
@@ -201,7 +192,8 @@ def load_atih_rules() -> dict[str, dict]:
     """Parse ``templates/regles_atih.yml`` into ``{rule_id: {texte, criteres}}``.
 
     Mirrors the YAML-loading block in ``generate_scenario.__init__``
-    (utils_v2.py:295–301).
+    (utils_v2.py:295–301). The file lives in ``pipelines/aphp/templates/``
+    (part of the codebase, not the external referentials directory).
     """
     with (TEMPLATES_DIR / "regles_atih.yml").open("r", encoding="utf-8") as f:
         rules = yaml.safe_load(f)
@@ -219,9 +211,6 @@ def load_atih_rules() -> dict[str, dict]:
 # PMSI input data (user-provided, in self.config["data"]["input"])
 # ---------------------------------------------------------------------------
 
-# Default file *patterns* for the three PMSI inputs. Real-world filenames are
-# date-stamped (e.g. ``bn_pmsi_related_diag_20250818.csv``); we glob for the
-# most recent match so users can drop new extracts in without touching config.
 _PMSI_PATTERNS: dict[str, tuple[str, ...]] = {
     "profiles": ("scenarios_*.parquet", "scenarios_*"),
     "secondary_icd": ("bn_pmsi_related_diag_*.csv",),
@@ -243,8 +232,6 @@ def _resolve_pmsi_file(input_dir: Path, key: str) -> Path:
     return max(matches, key=lambda p: p.stat().st_mtime)
 
 
-# Column rename for the classification profile parquet (matches the
-# ``col_names`` dict passed to ``load_classification_profile`` in the notebook).
 _PROFILE_RENAME: dict[str, str] = {
     "racine": "drg_parent_code",
     "diagnostic_associes": "icd_secondary_code",
@@ -259,7 +246,6 @@ _PROFILE_RENAME: dict[str, str] = {
     "nbda": "nb_associated",
 }
 
-# Column rename for the secondary-ICD and procedures CSVs.
 _SECONDARY_RENAME: dict[str, str] = {
     "racine": "drg_parent_code",
     "das": "icd_secondary_code",
@@ -281,52 +267,53 @@ def _safe_rename(lf: pl.LazyFrame, mapping: dict[str, str]) -> pl.LazyFrame:
 
 
 def _scan_profiles(input_dir: Path) -> pl.LazyFrame:
-    """Scan the main PMSI classification profile (Parquet)."""
     path = _resolve_pmsi_file(input_dir, "profiles")
     return _safe_rename(pl.scan_parquet(path), _PROFILE_RENAME)
 
 
 def _scan_secondary_icd(input_dir: Path) -> pl.LazyFrame:
-    """Scan the secondary-diagnoses CSV from PMSI."""
     path = _resolve_pmsi_file(input_dir, "secondary_icd")
     return _safe_rename(pl.scan_csv(path, separator=";"), _SECONDARY_RENAME)
 
 
 def _scan_procedures(input_dir: Path) -> pl.LazyFrame:
-    """Scan the procedures CSV from PMSI."""
     path = _resolve_pmsi_file(input_dir, "procedures")
     return _safe_rename(pl.scan_csv(path, separator=";"), _SECONDARY_RENAME)
 
 
 # ---------------------------------------------------------------------------
-# Public entry point
+# Public entry points
 # ---------------------------------------------------------------------------
 
 
-def load_referentials() -> dict[str, pl.LazyFrame]:
+def load_referentials(referentials_dir: str | Path) -> dict[str, pl.LazyFrame]:
     """Return all versioned referentials as ``LazyFrame`` objects.
 
-    The keys mirror the attribute names used by ``generate_scenario`` so the
-    downstream port stays readable.
+    Parameters
+    ----------
+    referentials_dir:
+        Directory containing the AP-HP referential files (Parquet + CSV).
+        Configured via ``config["data"]["referentials"]`` in ``servers.yaml``.
     """
+    r = Path(referentials_dir)
     data: dict[str, pl.LazyFrame] = {
-        "icd_official": _scan_official_icd(),
-        "icd_synonyms": _scan_icd_synonyms(),
-        "icd_categ_weight": _scan_icd_categ_weight(),
-        "drg_statistics": _scan_drg_statistics(),
-        "drg_parents_groups": _scan_drg_parents_groups(),
-        "chronic": _scan_chronic(),
-        "complications": _scan_complications(),
-        "names": _scan_names(),
-        "hospitals": _scan_hospitals(),
-        "specialty": _scan_specialty(),
-        "procedure_official": _scan_procedure_official(),
-        "cancer_codes": _scan_cancer_codes(),
-        "cancer_treatment": _scan_cancer_treatment(),
-        "exclusions": _scan_exclusions(),
+        "icd_official": _scan_official_icd(r),
+        "icd_synonyms": _scan_icd_synonyms(r),
+        "icd_categ_weight": _scan_icd_categ_weight(r),
+        "drg_statistics": _scan_drg_statistics(r),
+        "drg_parents_groups": _scan_drg_parents_groups(r),
+        "chronic": _scan_chronic(r),
+        "complications": _scan_complications(r),
+        "names": _scan_names(r),
+        "hospitals": _scan_hospitals(r),
+        "specialty": _scan_specialty(r),
+        "procedure_official": _scan_procedure_official(r),
+        "cancer_codes": _scan_cancer_codes(r),
+        "cancer_treatment": _scan_cancer_treatment(r),
+        "exclusions": _scan_exclusions(r),
     }
     for key, filename in _CODE_LIST_FILES.items():
-        data[key] = _scan_code_list(filename)
+        data[key] = _scan_code_list(r, filename)
     return data
 
 
@@ -337,8 +324,7 @@ def load_pmsi(input_dir: str | Path) -> dict[str, pl.LazyFrame]:
     ----------
     input_dir:
         Directory containing the user-provided PMSI extracts. The most recent
-        file matching each known pattern (``scenarios_*``,
-        ``bn_pmsi_related_diag_*.csv``, ``bn_pmsi_procedures_*.csv``) is picked.
+        file matching each known pattern is picked.
     """
     input_dir = Path(input_dir)
     if not input_dir.is_dir():
@@ -352,19 +338,27 @@ def load_pmsi(input_dir: str | Path) -> dict[str, pl.LazyFrame]:
     }
 
 
-def load_data(input_dir: str | Path) -> dict[str, pl.LazyFrame]:
+def load_data(
+    input_dir: str | Path,
+    referentials_dir: str | Path,
+) -> dict[str, pl.LazyFrame]:
     """Merge :func:`load_referentials` and :func:`load_pmsi` into one dict.
 
-    This is the dict that ``APHPPipeline.load_data()`` will return to fulfill
-    the ``BasePipeline`` contract.
+    Parameters
+    ----------
+    input_dir:
+        Directory with user-provided PMSI extracts (``data.input`` in config).
+    referentials_dir:
+        Directory with AP-HP referential files (``data.referentials`` in config).
     """
-    return {**load_referentials(), **load_pmsi(input_dir)}
+    return {**load_referentials(referentials_dir), **load_pmsi(input_dir)}
 
 
-def referential_paths() -> dict[str, Any]:
+def referential_paths(referentials_dir: str | Path) -> dict[str, Any]:
     """Expose key on-disk paths for use by ``check_data()``."""
+    r = Path(referentials_dir)
     return {
-        "referentials_dir": REFERENTIALS_DIR,
+        "referentials_dir": r,
         "templates_dir": TEMPLATES_DIR,
         "atih_rules": TEMPLATES_DIR / "regles_atih.yml",
     }

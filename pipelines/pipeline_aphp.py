@@ -59,6 +59,14 @@ class APHPPipeline(BasePipeline):
         # Probe each expected pattern — raises FileNotFoundError with a clear message
         loader.load_pmsi(input_dir)
 
+        referentials_dir = Path(self.config["data"]["referentials"])
+        if not referentials_dir.is_dir():
+            raise FileNotFoundError(
+                f"Le répertoire des référentiels AP-HP est introuvable : {referentials_dir}\n"
+                "Configurez 'data.referentials' dans servers.yaml et copiez-y les "
+                "fichiers référentiels (Parquet/CSV)."
+            )
+
         self.logger.info("Données AP-HP présentes dans %s.", input_dir)
 
     # ------------------------------------------------------------------
@@ -67,7 +75,10 @@ class APHPPipeline(BasePipeline):
 
     def load_data(self) -> dict[str, pl.LazyFrame]:
         """Return all referentials + PMSI extracts as ``LazyFrame`` objects."""
-        return loader.load_data(self.config["data"]["input"])
+        return loader.load_data(
+            self.config["data"]["input"],
+            self.config["data"]["referentials"],
+        )
 
     # ------------------------------------------------------------------
     # 3 — get_fictive

@@ -141,6 +141,11 @@ celerybeat.pid
 
 # Local config (may contain API keys)
 config/servers.yaml
+
+# Data directories (PMSI extracts + referentials — non versionnés)
+data/
+reports/
+pipelines/aphp/referentials/
 env/
 venv/
 ENV/
