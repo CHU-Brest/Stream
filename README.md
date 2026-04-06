@@ -252,6 +252,19 @@ Module responsable de la génération de rapports CRH via appels LLM.
 - Gestion des batches et persistance des résultats
 - Formatage des réponses LLM
 
+## Comparaison des Pipelines
+
+| Aspect | Pipeline Brest (CHU Brest) | Pipeline AP-HP (Paris) |
+|--------|----------------------------|-------------------------|
+| **Source de données** | SNDS (Oracle) | ATIH (SAS BD) |
+| **Méthode de tirage** | Pondéré DP/CCAM/DAS/DMS | Pondéré PMSI + règles ATIH |
+| **Modules communs** | fictive.py, scenario.py | fictive.py, scenario.py, report.py |
+| **Logique métier** | Simple (CHU Brest) | Complexe (référentiels ATIH) |
+| **Classification** | Basique | MCO/SSR/HAD (managment.py) |
+| **Validation** | Standard | Règles ATIH spécifiques |
+| **Templates** | Génériques | Spécifiques AP-HP |
+| **Sur-couche** | Non | Oui (prompts enrichis) |
+
 ## Intégration dans les pipelines
 
 Les pipelines Brest et AP-HP ont été mis à jour pour utiliser ces modules communs :
