@@ -24,8 +24,10 @@ Stream/
 │   ├── __init__.py               # Expose BrestPipeline, APHPPipeline, et BasePipeline
 │   ├── pipeline.py               # Code commun aux deux pipelines
 │   ├── brest/
-│   │   ├── __init__.py           # Expose BrestPipeline
-│   │   └── pipeline.py           # Pipeline Brest spécifique
+│   │   ├── __init__.py           # Expose BrestPipeline, constants, sampler
+│   │   ├── pipeline.py           # Pipeline Brest spécifique
+│   │   ├── constants.py          # Constantes et sources de données
+│   │   └── sampler.py            # Échantillonnage et génération aléatoire
 │   └── aphp/
 │       ├── __init__.py           # Expose les modules AP-HP et APHPPipeline
 │       ├── pipeline.py           # Pipeline AP-HP spécifique
