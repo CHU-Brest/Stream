@@ -6,17 +6,17 @@ Each section corresponds to a specific area of improvement, with detailed tasks 
 ## 📋 Current Priorities
 
 ### 1. **Modularity & Separation of Concerns** *(Week 1-2)*
-- [ ] **Decompose pipelines into smaller, specialized modules**
-  - [ ] Create `fictive.py` for fictitious stay generation
-  - [ ] Create `scenario.py` for scenario transformation
-  - [ ] Create `report.py` for CRH generation
-  - [ ] Define clear interfaces between modules
-  - [ ] Document module responsibilities in docstrings
+- [x] **Decompose pipelines into smaller, specialized modules**
+  - [x] Create `fictive.py` for fictitious stay generation
+  - [x] Create `scenario.py` for scenario transformation
+  - [x] Create `report.py` for CRH generation
+  - [x] Define clear interfaces between modules
+  - [x] Document module responsibilities in docstrings
 
-- [ ] **Refactor AP-HP pipeline to use internal modules** *(follow-up to current refactoring)*
-  - [ ] Integrate `loader`, `scenario`, `managment`, `prompt`, `sampler` directly into `pipeline.py`
-  - [ ] Ensure backward compatibility with existing code
-  - [ ] Update imports and references
+- [x] **Refactor AP-HP pipeline to use internal modules** *(follow-up to current refactoring)*
+  - [x] Integrate `loader`, `scenario`, `managment`, `prompt`, `sampler` directly into `pipeline.py`
+  - [x] Ensure backward compatibility with existing code
+  - [x] Update imports and references
 
 ### 2. **Testing Improvements** *(Week 2-3)*
 - [ ] **Add integration tests**
@@ -45,9 +45,9 @@ Each section corresponds to a specific area of improvement, with detailed tasks 
   - [ ] Add narrative documentation (tutorials, examples)
   - [ ] Host documentation on GitHub Pages/ReadTheDocs
 
-- [ ] **Expand README.md**
-  - [ ] Add architecture diagrams (Mermaid.js)
-  - [ ] Add "Getting Started" guide with concrete examples
+- [x] **Expand README.md**
+  - [x] Add architecture diagrams (Mermaid.js)
+  - [x] Add "Getting Started" guide with concrete examples
   - [ ] Document common pitfalls and solutions
 
 ### 4. **Performance Optimization** *(Week 4-5)*
@@ -95,7 +95,7 @@ Each section corresponds to a specific area of improvement, with detailed tasks 
   - [ ] Add config examples for different use cases
 
 ### 7. **Developer Experience** *(Week 6-7)*
-- [ ] **Add CONTRIBUTING.md** *(This file!)*
+- [x] **Add CONTRIBUTING.md** *(This file!)*
   - [x] Development environment setup
   - [x] Coding guidelines
   - [x] Testing guidelines
@@ -145,3 +145,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
 
 *Last updated: 2024-04-06*
 *Status: Active*
+*Next review: 2024-05-01*

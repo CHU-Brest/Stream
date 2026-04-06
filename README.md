@@ -212,6 +212,46 @@ Module responsable de la génération de rapports CRH via appels LLM.
 - Gestion des batches et persistance des résultats
 - Formatage des réponses LLM
 
+## Modules communs
+
+Trois nouveaux modules ont été ajoutés pour centraliser la logique commune entre les pipelines :
+
+### `pipelines/fictive.py`
+
+Module responsable de la génération de séjours fictifs à partir des données PMSI.
+
+**Fonction principale** :
+- `generate_fictive_stays(data, n_sejours, pipeline_type, **kwargs)`
+
+**Responsabilités** :
+- Génération de séjours fictifs pour les pipelines Brest et AP-HP
+- Logique d'échantillonnage spécifique à chaque pipeline
+- Réduction de la duplication de code
+
+### `pipelines/scenario.py`
+
+Module responsable de la transformation des séjours fictifs en scénarios textuels pour les LLM.
+
+**Fonction principale** :
+- `format_scenarios(df, pipeline_type, **kwargs)`
+
+**Responsabilités** :
+- Transformation des séjours en prompts textuels
+- Formatage spécifique Brest (simple) et AP-HP (riche)
+- Gestion des templates et règles ATIH
+
+### `pipelines/report.py`
+
+Module responsable de la génération de rapports CRH via appels LLM.
+
+**Fonction principale** :
+- `generate_reports(df, client, model, batch_size, output_dir, pipeline_type)`
+
+**Responsabilités** :
+- Interaction avec les clients LLM (Anthropic, Mistral, Ollama)
+- Gestion des batches et persistance des résultats
+- Formatage des réponses LLM
+
 ## Intégration dans les pipelines
 
 Les pipelines Brest et AP-HP ont été mis à jour pour utiliser ces modules communs :
@@ -238,6 +278,50 @@ class APHPPipeline(BasePipeline):
     def get_report(self, df, client, model, **kwargs):
         return generate_reports(df, client, model, pipeline_type="aphp", **kwargs)
 ```
+
+## Ajouter un pipeline
+
+Créer une classe héritant de `BasePipeline` et implémenter les 4 méthodes :
+
+```python
+from pipelines.pipeline import BasePipeline
+
+class MonPipeline(BasePipeline):
+    name = "mon_pipeline"
+
+    def check_data(self) -> None:
+        """Verify that source data is present and prepare it if needed."""
+        # Ajoutez des messages de log pour faciliter le débogage
+        self.logger.info("Vérification des données d'entrée pour le pipeline %s.", self.name)
+        # Votre logique de vérification des données ici
+        self.logger.info("Données vérifiées avec succès.")
+
+    def load_data(self) -> dict[str, pl.LazyFrame]:
+        """Load prepared data as LazyFrames."""
+        # Ajoutez des messages de log pour suivre le chargement des données
+        self.logger.info("Chargement des données pour le pipeline %s.", self.name)
+        # Votre logique de chargement des données ici
+        self.logger.info("Données chargées avec succès.")
+        return {}
+
+    def get_fictive(self, data, **kwargs) -> pl.DataFrame:
+        """Generate fictitious hospital stays from loaded data."""
+        # Ajoutez des messages de log pour suivre la génération des séjours fictifs
+        self.logger.info("Génération de %d séjours fictifs.", kwargs.get("n_sejours", 1000))
+        # Votre logique de génération des séjours fictifs ici
+        self.logger.info("Génération des séjours fictifs terminée avec succès.")
+        return pl.DataFrame()
+
+    def get_scenario(self, df) -> pl.DataFrame:
+        """Transform fictitious stays into text scenarios for the LLM."""
+        # Ajoutez des messages de log pour suivre le formatage des scénarios
+        self.logger.info("Formatage des scénarios pour %d séjours.", len(df))
+        # Votre logique de formatage des scénarios ici
+        self.logger.info("Formatage des scénarios terminé avec succès.")
+        return df
+```
+
+Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
 
 ## Ajouter un pipeline
 
