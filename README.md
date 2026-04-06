@@ -305,35 +305,78 @@ Puis l'enregistrer dans `runner.py` (`PIPELINES`) et `cli.py` (`choices`).
 
 ## Roadmap de fusion
 
-### Étapes techniques
+```mermaid
+gantt
+    title Roadmap de fusion des pipelines
+    dateFormat  YYYY-MM
+    section Étapes techniques
+    Unification interfaces       :a1, 2024-05, 2024-06
+    Refactoring ciblé            :a2, 2024-06, 2024-07
+    Validation complète          :a3, 2024-07, 2024-08
+    section Décisions architecturales
+    Référentiels                :crit1, 2024-05, 2024-05
+    Règles métiers               :crit2, 2024-05, 2024-06
+    Validation données           :crit3, 2024-06, 2024-06
+    Templates LLM                :crit4, 2024-06, 2024-07
+    section Livraison
+    Intégration continue         :2024-07, 2024-08
+    Documentation finale         :2024-08, 2024-08
+```
 
-1. **Unification des interfaces**
-   - Aligner `get_report()` entre pipelines
-   - Standardiser les structures de données
-   - Créer des adaptateurs pour les spécificités
+### Détails des étapes
 
-2. **Refactoring ciblé**
-   - Extraire la logique métier AP-HP
-   - Documenter les divergences nécessaires
-   - Optimiser les performances
+**1. Unification des interfaces (Mai-Juin 2024)**
+- Aligner `get_report()` entre pipelines
+- Standardiser les structures de données
+- Créer des adaptateurs pour les spécificités
 
-3. **Validation complète**
-   - Tests d'intégration croisés
-   - Benchmarking comparatif
-   - Validation des données
+**2. Refactoring ciblé (Juin-Juillet 2024)**
+- Extraire la logique métier AP-HP
+- Documenter les divergences nécessaires
+- Optimiser les performances
+
+**3. Validation complète (Juillet-Août 2024)**
+- Tests d'intégration croisés Brest/AP-HP
+- Benchmarking comparatif
+- Validation des données et cohérence
 
 ### Décisions architecturales clés
 
-| Décision | Options | Critères principaux |
-|----------|---------|---------------------|
-| **Référentiels** | Séparés / Unifiés / Plugins | Maintenabilité, Performance, Flexibilité |
-| **Règles métiers** | Modules / Configurable / Moteur générique | Complexité, Flexibilité, Performance |
-| **Validation** | Stricte / Progressive / Scoring | Robustesse, UX, Maintenabilité |
-| **Templates** | Séparés / Unifié / Composition | Cohérence, Flexibilité, Maintenabilité |
+```mermaid
+mindmap
+  root((Décisions architecturales))
+    Référentiels
+      Séparés (SNDS/ATIH)
+      Unifiés avec mappings
+      Système de plugins
+    Règles métiers
+      Modules spécifiques
+      Configurable (YAML)
+      Moteur générique
+    Validation
+      Stricte (échec rapide)
+      Progressive (warnings)
+      Scoring qualité
+    Templates LLM
+      Séparés par établissement
+      Unifié conditionnel
+      Composition modulaire
+```
 
 ### Processus décisionnel
 
-1. Ateliers Brest/AP-HP pour alignement
-2. Prototypage des options critiques
-3. Benchmarking technique
-4. Documentation dans des ADR
+1. **Ateliers collaboratifs** (Mai 2024)
+   - Alignement Brest/AP-HP sur les besoins
+   - Priorisation des décisions
+
+2. **Prototypage** (Juin 2024)
+   - Preuves de concept pour options critiques
+   - Évaluation technique
+
+3. **Benchmarking** (Juillet 2024)
+   - Mesures de performance
+   - Évaluation maintenabilité
+
+4. **Documentation** (Août 2024)
+   - ADR (Architecture Decision Records)
+   - Mise à jour diagrammes
