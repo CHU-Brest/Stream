@@ -7,7 +7,7 @@ Stream unifie plusieurs méthodes de génération au sein d'une architecture com
 | Pipeline | Source de données | Méthode | Statut |
 |----------|-------------------|---------|--------|
 | **Brest** | ATIH (Base nationale) | Tirage pondéré DP/CCAM/DAS/DMS + LLM | Implémenté |
-| **AP-HP** | ATIH (SAS BD) | Tirage pondéré PMSI + LLM | Implémenté |
+| **AP-HP** | ATIH (Base nationale) | Tirage pondéré PMSI + LLM | Implémenté |
 
 Projets de référence : [Doppelgänger](https://github.com/CHU-Brest/doppelganger) (CHU Brest) et [Recode-Scenario](https://github.com/24p11/recode-scenario) (AP-HP).
 
@@ -98,7 +98,7 @@ Déposer les CSV suivants dans le répertoire `data.input` configuré :
 | `ALL_CCAM.csv` | Référentiel actes CCAM |
 | `ALL_CLASSIF_PMSI.csv` | Référentiel GHM |
 
-Ces fichiers sont produits par les scripts SAS d'extraction (`liabilities/extract_pmsi_tables_SNDS.sas`).
+Ces fichiers sont produits par les scripts d'extraction ATIH spécifiques au CHU Brest.
 
 ### Données d'entrée (pipeline AP-HP)
 
@@ -110,7 +110,7 @@ Déposer les fichiers suivants dans le répertoire `data.input` configuré :
 | `bn_pmsi_related_diag_*.csv` | Diagnostics associés par GHM |
 | `bn_pmsi_procedures_*.csv` | Actes CCAM par GHM |
 
-Ces fichiers sont produits par les scripts d'extraction ATIH. Les référentiels AP-HP doivent être placés dans `data.referentials`.
+Ces fichiers sont produits par les scripts d'extraction ATIH spécifiques à l'AP-HP. Les référentiels AP-HP doivent être placés dans `data.referentials`.
 
 ## Utilisation
 
@@ -216,7 +216,7 @@ Module responsable de la génération de rapports CRH via appels LLM.
 
 | Aspect | Pipeline Brest (CHU Brest) | Pipeline AP-HP (Paris) |
 |--------|----------------------------|-------------------------|
-| **Source de données** | ATIH (Base nationale) | ATIH (SAS BD) |
+| **Source de données** | ATIH (Base nationale) | ATIH (Base nationale) |
 | **Méthode de tirage** | Pondéré DP/CCAM/DAS/DMS | Pondéré PMSI + règles ATIH |
 | **Modules communs** | fictive.py, scenario.py | fictive.py, scenario.py, report.py |
 | **Logique métier** | Simple (CHU Brest) | Complexe (référentiels ATIH) |
