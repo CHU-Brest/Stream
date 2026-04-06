@@ -267,6 +267,13 @@ class BrestPipeline(BasePipeline):
 ```
 
 ### AP-HP Pipeline
+Le pipeline AP-HP utilise les modules communs avec une sur-couche spécifique pour la génération de rapports. Cette sur-couche implémente la logique métier AP-HP pour :
+
+- **Gestion des référentiels ATIH** : Chargement et validation des codes ICD-10, CCAM et GHM spécifiques à l'AP-HP
+- **Classification des prises en charge** : Application des règles de managment (MCO, SSR, HAD) selon les référentiels ATIH
+- **Génération de prompts enrichis** : Intégration des templates système spécifiques AP-HP avec règles de formatage ATIH
+- **Validation des scénarios** : Vérification de la cohérence clinique selon les règles métiers AP-HP
+
 ```python
 class APHPPipeline(BasePipeline):
     def get_fictive(self, data, **kwargs):
