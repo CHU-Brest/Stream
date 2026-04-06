@@ -1,0 +1,31 @@
+code;description
+O0401;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, incomplet, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0402;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, incomplet, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0403;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, incomplet, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0411;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, incomplet, compliqué d'une hémorragie retardée ou sévère
+O0412;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, incomplet, compliqué d'une hémorragie retardée ou sévère
+O0413;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, incomplet, compliqué d'une hémorragie retardée ou sévère
+O0421;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, incomplet, compliqué d'une embolie
+O0422;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, incomplet, compliqué d'une embolie
+O0423;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, incomplet, compliqué d'une embolie
+O0431;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, incomplet, avec complications autres et non précisées
+O0432;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, incomplet, avec complications autres et non précisées
+O0433;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, incomplet, avec complications autres et non précisées
+O0441;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, incomplet, sans complication
+O0442;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, incomplet, sans complication
+O0443;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, incomplet, sans complication
+O0451;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, complet ou sans précision, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0452;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, complet ou sans précision, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0453;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, complet ou sans précision, compliqué d'une infection de l'appareil génital et des organes pelviens
+O0461;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, complet ou sans précision, compliqué d'une hémorragie retardée ou sévère
+O0462;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, complet ou sans précision, compliqué d'une hémorragie retardée ou sévère
+O0463;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, complet ou sans précision, compliqué d'une hémorragie retardée ou sévère
+O0471;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, complet ou sans précision, compliqué d'une embolie
+O0472;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, complet ou sans précision, compliqué d'une embolie
+O0473;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, complet ou sans précision, compliqué d'une embolie
+O0481;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, complet ou sans précision, avec complications autres et non précisées
+O0482;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, complet ou sans précision, avec complications autres et non précisées
+O0483;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, complet ou sans précision, avec complications autres et non précisées
+O0491;Interruption médicale de grossesse [IMG] [ITG] pour cause embryonnaire ou foetale, complet ou sans précision, sans complication
+O0492;Interruption médicale de grossesse [IMG] [ITG] pour cause maternelle, complet ou sans précision, sans complication
+O0493;Interruption médicale de grossesse [IMG] [ITG] pour association de causes foetale et maternelle, complet ou sans précision, sans complication

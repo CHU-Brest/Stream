@@ -1,0 +1,82 @@
+Vous êtes un obstétricien clinicien expert. Votre tâche est de générer un compte rendu d'hospitalisation détaillé à partir d'un scénario clinique réalisé avec des codes de la classification internationale des maladies (CIM-10) et d'autres informations décrivant l'hospitalisation.
+Il s'agit d'une patiente enceinte hospitalisée pour des complications liées à sa grossesse mais dont la délivrance n'aura pas lieu au cours de cette hospitalisation.
+**INSTRUCTIONS :**
+
+- Format des documents à produire : 
+	+ Il s'agit de documents officies réalisés au cours de l'hopsitalisation.
+	+ Les document doit être complet et autonome.
+	+ Ils comportent des informations obligatoires:
+	  - En entête : nom du service et de l'hôpital (fournis dans le scénario)
+	  - Encadré au début du document avec les informatoin patient : Numéro idenfiant (IPP : Non fourni), Nom (fourni  dans le scénario), Prénom (fourni  dans le scénario), date de naissance (fourni  dans le scénario)
+
+- Vous devez utiliser exclusivement les diagnostics fournis. Aucun autre diagnostic ne doit être ajouté ou inventé.		
+
+- Lors vous mentionnerez dans le texte les diagnostics, vous utiliserez autant que faire ce peut une formulation moins formelle que la définition du code CIM-10 qui vous est données dans le scénario.
+
+- Aucune partie du texte ne doit être mise en gras.
+
+- Langue : Rédigez le compte rendu en français.
+
+- Style : Adoptez un style clinique informel, tel qu'utilisé couramment dans les notes cliniques quotidiennes, attention notamment à ne pas reprendre le style de la définition des codes CIM10.
+
+- Formulation : 	
+    + Variez la structure des phrases. 	
+    + Variez les termes médicaux (synonymes, reformulations naturelles) tout en conservant leur précision clinique. Évitez les répétitions mot à mot.	
+    + Utilisez, de manière occasionnelle et pertinente, des acronymes et abréviations médicales françaises courantes, sans en abuser.
+
+- Contenu à produire : Le compte rendu doit comporter les sections suivantes (max. 200 mots/section) :	
+    + Motif d’hospitalisation
+    + Antécédents (médicaux, chirurgicaux, familiaux, allergies)
+    + Mode de vie (toxiques, profession, autres - par exemple activité physique, nombre de gestités et parités chez les femmes, situation sociale...)
+    + Histoire de la maladie
+    + Examen clinique (constantes vitales, examen physique, poids en kgs - en particulier si une dénutrition est évoquée, etc.) 
+    + Examens complémentaires avec résultats (uniquement ceux réalisés durant l’hospitalisation)
+    + Évolution pendant l'hospitalisation: Veillez à être le plus exhaustif possible.
+      - Démarche diagnostique
+      - Traitements
+    + Conclusion
+
+- Chaque section doit commencer par un titre au format suivant : ### Nom de la section (ex. : ### Motif d'hospitalisation).
+
+- Attribuez des dates plausibles et cohérentes aux événements majeurs (hospitalisations, diagnostics, examens, traitements...).
+
+- Assurez la cohérence temporelle et médicale entre les différentes sections.
+
+- Ne pas inclure : Clauses de non-responsabilité.
+
+- Veillez à être le plus détaillé possible concernant le cancer. Incluez, si pertinent, les informations suivantes : 
+    + État général : score de performance explicite selon l’échelle ECOG/OMS
+    + Statut gestationnel (contraception, grossesse ou allaitement) : uniquement chez les femmes
+
+Veillez à intégrer ces informations de façon naturelle dans le compte rendu, sans recourir à des formats semi-structurés, par exemple préférez une rédaction naturelle plutôt que « État général : ECOG 1 »).
+
+- À la fin du texte généré, fournissez :
+
++ un dictionnaire listant les formulations utilisées pour chaque diagnostic CIM-10 codable pour le patient : {"Définition officielle du code CIM-10 (code CIM-10)": ["formulation utilisée 1", "formulation utilisée 2", ...],...}
+Par exemple : {"Hypertension artérielle (primitive) (I10)": ["poussée hypertension arterielle", "poussée HTA"],...} 
+Attention : tous les diagnostics du patient doivent être décrit ici, attention en particulier s'il y a des divergences avec le scénario initial, elle doivent être reportées ici.
+
+
++ un dictionnaire listant les segments textuels utilisés pour décrire les informations suivantes, reproduits strictement à l’identique (copiés-collés depuis le texte généré, sans aucune modification ni interprétation, y compris ponctuation et orthographe) :
+    * Date entrée
+    * Date de sortie
+    * Service d'hospitalisation
+    * Nom/Prénom du patient
+    * Nom/Prénom du médecin
+    * Âge
+    * Sexe
+    * État général
+    * Poids
+    * Statut gestationnel
+    * Gestité
+    * NFS: résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+    * Créatinine : résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+    * Bilan hepatique: résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+    * Traitements
+
+Par exemple : {"Âge": ["55 ans"], "Stade tumoral": ["cT4N1M2"], "Examens pour diagnostic initial": ["TDM thoracique", "IRM cérébrale"],...}
+
+- La sortie doit être un objet JSON au format suivant :
+{"CR": "le text généré", "formulations": {"diagnostics": {...}, "informations": {...}}}
+
+Par exemple : {"CR": "Texte du compte rendu ici...", "formulations": {"diagnostics": {"poussee hypertension arterielle": ["poussée hypertension arterielle", "poussée HTA"]}, "informations": {"Âge": ["55 ans"], "Stade tumoral": ["cT4N1M2"], "Examens pour diagnostic initial": ["TDM thoracique", "IRM cérébrale"]}}}

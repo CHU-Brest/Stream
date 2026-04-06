@@ -1,0 +1,24 @@
+code;description
+Z08;Examen de contrôle après traitement d'une tumeur maligne
+Z080;Examen de contrôle après traitement chirurgical d'une tumeur maligne
+Z081;Examen de contrôle après radiothérapie pour tumeur maligne
+Z082;Examen de contrôle après chimiothérapie pour tumeur maligne
+Z087;Examen de contrôle après traitements combinés pour tumeur maligne
+Z088;Examen de contrôle après d'autres traitements pour tumeur maligne
+Z089;Examen de contrôle après traitement pour tumeur maligne, sans précision
+Z09;Examen de contrôle après traitement d'affections autres que les tumeurs malignes
+Z090;Examen de contrôle après traitement chirurgical d'autres affections
+Z091;Examen de contrôle après radiothérapie pour d'autres affections
+Z092;Examen de contrôle après chimiothérapie pour d'autres affections
+Z093;Examen de contrôle après psychothérapie
+Z094;Examen de contrôle après traitement d'une fracture
+Z097;Examen de contrôle après traitements combinés pour d'autres affections
+Z098;Examen de contrôle après d'autres traitements pour d'autres affections
+Z099;Examen de contrôle après traitement pour une affection, sans précision
+Z48;Autres soins de contrôle chirurgicaux
+Z480;Surveillance des sutures et pansements chirurgicaux
+Z488;Autres soins de contrôle chirurgicaux précisés
+Z489;Soin de contrôle chirurgical, sans précision
+Z713;Surveillance et conseils diététiques
+Z714;Conseil et surveillance pour alcoolisme
+Z715;Conseil et surveillance pour toxicomanie et pharmacodépendance

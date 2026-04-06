@@ -1,0 +1,11 @@
+code;description
+Z38;Enfants nés vivants, selon le lieu de naissance
+Z380;Enfant unique, né à l'hôpital
+Z381;Enfant unique, né hors d'un hôpital
+Z382;Enfant unique, lieu de naissance non précisé
+Z383;Jumeaux, nés à l'hôpital
+Z384;Jumeaux, nés hors d'un hôpital
+Z385;Jumeaux, lieu de naissance non précisé
+Z386;Autres naissances multiples, enfants nés à l'hôpital
+Z387;Autres naissances multiples, enfants nés hors d'un hôpital
+Z388;Autres naissances multiples, lieu de naissance non précisé

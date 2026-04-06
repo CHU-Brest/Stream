@@ -1,0 +1,129 @@
+code;description
+Z85;Antécédents personnels de tumeur maligne
+Z850;Antécédents personnels de tumeur maligne des organes digestifs
+Z8500;Antécédents personnels de tumeur maligne du tube digestif
+Z8501;Antécédents personnels de tumeur maligne du système hépatobiliaire et du pancréas
+Z8502;Antécédents personnels de tumeur maligne de la rate
+Z8509;Antécédents personnels de tumeur maligne des organes digestifs, sans précision
+Z851;Antécédents personnels de tumeur maligne de la trachée, des bronches et des poumons
+Z852;Antécédents personnels de tumeur maligne d'autres organes respiratoires et intrathoraciques
+Z8520;Antécédents personnels de tumeur maligne des voies aériennes supérieures et de l'oreille moyenne
+Z8521;Antécédents personnels de tumeur maligne du coeur
+Z8528;Antécédents personnels de tumeur maligne d'autres organes intrathoraciques précisés
+Z8529;Antécédents personnels de tumeur maligne des autres organes respiratoires et intrathoraciques, sans précision
+Z853;Antécédents personnels de tumeur maligne du sein
+Z854;Antécédents personnels de tumeur maligne des organes génitaux
+Z855;Antécédents personnels de tumeur maligne des voies urinaires
+Z856;Antécédents personnels de leucémie
+Z857;Antécédents personnels d'autres tumeurs malignes des tissus lymphoïde, hématopoïétique et apparentés
+Z858;Antécédents personnels de tumeurs malignes d'autres organes et systèmes
+Z85800;Antécédents personnels de tumeur maligne du système nerveux
+Z85801;Antécédents personnels de tumeur maligne de l'oeil
+Z85802;Antécédents personnels de tumeur maligne de la gorge et de la bouche
+Z85803;Antécédents personnels de tumeur maligne de l'appareil musculosquelettique et du tissu conjonctif
+Z85804;Antécédents personnels de tumeur maligne de la peau et des tissus souscutanés
+Z85805;Antécédents personnels de tumeur maligne des glandes endocrines
+Z85880;Antécédents personnels de tumeur maligne d'autres localisations
+Z859;Antécédents personnels de tumeur maligne, sans précision
+Z86;Antécédents personnels de certaines autres maladies
+Z860;Antécédents personnels d'autres tumeurs
+Z86000;Antécédents personnels de tumeur non maligne du système nerveux
+Z86001;Antécédents personnels de tumeur non maligne du tube digestif
+Z86002;Antécédents personnels de tumeur non maligne de l'appareil musculosquelettique et du tissu conjonctif
+Z86003;Antécédents personnels de tumeur non maligne du sein
+Z86004;Antécédents personnels de tumeur non maligne de la peau
+Z86005;Antécédents personnels de tumeur non maligne de la vessie
+Z86080;Antécédents personnels de tumeur non maligne d'autres localisations
+Z86090;Antécédents personnels de tumeur non maligne sans précision
+Z861;Antécédents personnels de maladies infectieuses et parasitaires
+Z862;Antécédents personnels de maladies du sang et des organes hématopoïétiques et de certains troubles du système immunitaire
+Z863;Antécédents personnels de maladies endocriniennes, nutritionnelles et métaboliques
+Z864;Antécédents personnels d'abus de substances psycho-actives
+Z865;Antécédents personnels d'autres troubles mentaux et du comportement
+Z866;Antécédents personnels de maladies du système nerveux et des organes des sens
+Z8660;Antécédents personnels d'accidents ischémiques cérébraux transitoires et syndromes apparentés
+Z8661;Antécédents personnels d'autres maladies du système nerveux
+Z8662;Antécédents personnels de maladies des organes de la vue
+Z8663;Antécédents personnels de maladies des organes de l'audition
+Z867;Antécédents personnels de maladies de l'appareil circulatoire
+Z8670;Antécédents personnels de maladies cérébrovasculaires
+Z8671;Antécédents personnels de cardiopathies ischémiques et autres maladies de l'appareil circulatoire
+Z87;Antécédents personnels d'autres maladies
+Z870;Antécédents personnels de maladies de l'appareil respiratoire
+Z8700;Antécédents personnels de maladies des voies respiratoires supérieures
+Z8701;Antécédents personnels d'autres maladies de l'appareil respiratoire
+Z8709;Antécédents personnels de maladies de l'appareil respiratoire sans précision
+Z871;Antécédents personnels de maladies de l'appareil digestif
+Z8710;Antécédents personnels de maladies de la bouche et des dents
+Z8711;Antécédents personnels de maladies du tube digestif
+Z8712;Antécédents personnels de maladies du système hépatobiliaire et du pancréas
+Z8719;Antécédents personnels de maladies de l'appareil digestif sans précision
+Z872;Antécédents personnels de maladies de la peau et du tissu cellulaire sous-cutané
+Z873;Antécédents personnels de maladies du système ostéo-articulaire, des muscles et du tissu conjonctif
+Z874;Antécédents personnels de maladies de l'appareil génito-urinaire
+Z8740;Antécédents personnels de maladies de l'appareil urinaire
+Z8741;Antécédents personnels de maladies de l'appareil génital
+Z8742;Antécédents personnels de maladies du sein
+Z875;Antécédents personnels de complications de la grossesse, de l'accouchement et de la puerpéralité
+Z876;Antécédents personnels de certaines affections dont l'origine se situe dans la période périnatale
+Z877;Antécédents personnels de malformations congénitales et anomalies chromosomiques
+Z878;Antécédents personnels d'autres états précisés
+Z8780;Antécédents personnels de lésion traumatique intracrânienne
+Z8781;Antécédents personnels de traumatisme des membres et du bassin
+Z8782;Antécédents personnels de traumatismes autres et non précisés
+Z8783;Antécédents personnels d'intoxication
+Z8788;Antécédents personnels d'autres états précisés
+Z88;Antécédents personnels d'allergie à des médicaments et des substances biologiques
+Z880;Antécédents personnels d'allergie à la pénicilline
+Z881;Antécédents personnels d'allergie à d'autres antibiotiques
+Z882;Antécédents personnels d'allergie aux sulfamides
+Z883;Antécédents personnels d'allergie à d'autres agents anti-infectieux
+Z884;Antécédents personnels d'allergie aux anesthésiques
+Z885;Antécédents personnels d'allergie aux narcotiques
+Z886;Antécédents personnels d'allergie aux analgésiques
+Z887;Antécédents personnels d'allergie aux sérum et vaccin
+Z888;Antécédents personnels d'allergie à d'autres médicaments et substances biologiques
+Z889;Antécédents personnels d'allergie à un médicament et une substance biologique, sans précision
+Z89;Absence acquise d'un membre
+Z890;Absence acquise de doigt(s) [y compris le pouce], unilatérale
+Z891;Absence acquise de main et poignet
+Z892;Absence acquise d'un membre supérieur au-dessus du poignet
+Z893;Absence acquise des deux membres supérieurs [tout niveau]
+Z894;Absence acquise de pied et cheville
+Z895;Absence acquise d'un membre inférieur, au niveau du genou ou au-dessous
+Z896;Absence acquise d'un membre inférieur, au-dessus du genou
+Z897;Absence acquise des deux membres inférieurs [tout niveau, sauf orteils seuls]
+Z898;Absence acquise à la fois de membres supérieurs et inférieurs [tout niveau]
+Z899;Absence acquise de membre, sans précision
+Z90;Absence acquise d'organes, non classée ailleurs
+Z900;Absence acquise d'une partie de la tête et du cou
+Z901;Absence acquise de sein(s)
+Z902;Absence acquise de poumon [partie de]
+Z903;Absence acquise de partie d'estomac
+Z904;Absence acquise d'autres parties de l'appareil digestif
+Z905;Absence acquise de rein
+Z906;Absence acquise d'autres organes des voies urinaires
+Z907;Absence acquise d'organe(s) génital(aux)
+Z908;Absence acquise d'autres organes
+Z91;Antécédents personnels de facteurs de risque, non classés ailleurs
+Z910;Antécédents personnels d'allergie, autre qu'à des médicaments et des substances biologiques
+Z911;Antécédents personnels de non-observance d'un traitement médical et d'un régime
+Z912;Antécédents personnels de mauvaise hygiène personnelle
+Z913;Antécédents personnels de cycle veille/sommeil anormal
+Z914;Antécédents personnels de traumatisme psychologique, non classé ailleurs
+Z915;Antécédents personnels de lésions auto-infligées
+Z9150;Antécédents personnels récents de lésions auto-infligées
+Z9158;Antécédents personnels de lésions auto-infligées, autres et non précisés
+Z916;Antécédents personnels d'autres traumatismes physiques
+Z918;Antécédents personnels d'autres facteurs de risque précisés, non classés ailleurs
+Z92;Antécédents personnels de traitement médical
+Z920;Antécédents personnels de contraception
+Z921;Antécédents personnels d'utilisation (actuelle) à long terme d'anticoagulants
+Z922;Antécédents personnels d'utilisation (actuelle) à long terme d'autres médicaments
+Z923;Antécédents personnels d'irradiation
+Z924;Antécédents personnels d'intervention chirurgicale importante, non classée ailleurs
+Z925;Antécédents personnels de mesures de rééducation
+Z926;Antécédents personnels de chimiothérapie pour tumeur
+Z928;Antécédents personnels d'autres traitements médicaux
+Z929;Antécédents personnels de traitement médical, sans précision
+Z917;Antécédent personnel de mutilation sexuelle féminine

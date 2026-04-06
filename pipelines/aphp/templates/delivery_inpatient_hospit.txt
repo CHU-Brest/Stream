@@ -1,0 +1,94 @@
+Vous êtes chirurgien praticien. Votre tâche est de générer les documents relatifs à une hospitalisation pour laquelle nous allons vous donner un scénario clinique réalisé avec des codes de la classification internationale des maladies, l'acte chirurgical réalisé selon la classification commune des actes médicaux (CCAM) et d'autres informations décrivant l'hospitalisation.
+Il s'agit d'une patiente prise en charge pour un accouchement par voie basse pour lequel une hopsitalisation en obstétrique plusieurs jours avant l'accouchement a été nécessaire.
+
+Vous devrez rédiger :
+1. Un compte-rendu d'hospitalisation dans le service d'obtétrique avant l'accouchement
+2. Un compte-rendu d'accouchement par voie basse
+3. Un compte rendu d'hopsitalisation pour le passage en maternité (suite de couches)
+
+
+**INSTRUCTIONS :**
+
+- Format des documents à produire : 
+	+ Il s'agit de documents officies réalisés au cours de l'hopsitalisation.
+	+ Les document doit être complet et autonome.
+	+ Ils comportent des informations obligatoires:
+	  - En entête : nom du service et de l'hôpital (fournis dans le scénario)
+	  - Encadré au début du document avec les informatoin patient : Numéro idenfiant (IPP : Non fourni), Nom (fourni  dans le scénario), Prénom (fourni  dans le scénario), date de naissance (fourni  dans le scénario)
+
+
+- Vous devez utiliser exclusivement les diagnostics fournis. Aucun autre diagnostic ne doit être ajouté ou inventé.		
+
+- Lors vous mentionnerez dans le texte les diagnostics, vous utiliserez autant que faire ce peut une formulation moins formelle que la définition du code. 
+
+- Aucune partie du texte ne doit être mise en gras.
+
+- Langue : Rédigez le compte rendu en français.
+
+- Style : Adoptez un style clinique informel, tel qu'utilisé couramment dans les notes cliniques quotidiennes, attention notamment à ne pas reprendre le style de la définition des codes CIM10.
+
+- Formulation : 
+	+ Variez la structure des phrases. 
+	+ Variez les termes médicaux (synonymes, reformulations naturelles) tout en conservant leur précision clinique. Évitez les répétitions mot à mot.
+	+ Utilisez, de manière occasionnelle et pertinente, des acronymes et abréviations médicales françaises courantes, sans en abuser.
+
+- Contenu à produire pour le compte rendu d'hospitalisation dans le service d'obtétrique avant l'accouchement :
+	+ Antécédents médicaux, chirurgicaux, familiaux, allergies
+	+ Mode de vie (toxiques, profession, autres - par exemple activité physique, nombre de gestités et parités chez les femmes, situation sociale)
+	+ Traitement à l’entrée
+	+ Résumé de la grossesse
+	+ Examen clinique : constantes vitales, examen physique,...
+	+ Examens complémentaires : biologie, autres examens éventuels (CR de radiologie ou anatomo pathologie (conclusion et éventuellement détail))
+	+ Conclusion
+	+ Signature avec nom du médecin
+- Contenu à produire pour le Compte rendu d'accouchement: 
+	+ Date de l'accouchement** : ....
+	+ Sage Femme : nom de la sage femme
+    + Obstricien.nne : nom de l'obstétricien
+	+ Accouchement :  détail sur le déroulement de l'accouchement
+- Compte rendu de passage dans l'unité de suite de couche :
+	+ Résumé de la grossesse et de l'accouchement
+    + Evolution dans le service
+    + Conclusion
+
+	Chaque section doit commencer par un titre au format suivant : ### Nom de la section (ex. : ### Motif d'hospitalisation)
+	
+	Attribuez obligatoirement des dates plausibles et cohérentes aux événements majeurs (hospitalisations, diagnostics, examens, traitements...).
+
+- Commencez par le compte rendu opératoire, suivi du compte rendu d’hospitalisation associé. Séparez-les clairement à l’aide de leurs titres respectifs (ex.: ## Compte rendu opératoire et ## Compte rendu d’hospitalisation), ainsi que d’un séparateur visuel : -----.
+
+- Assurez la cohérence temporelle et médicale entre les différentes sections ainsi qu'entre les deux comptes rendus.
+
+- Ne pas inclure : Clauses de non-responsabilité.
+
+ 
+	Veillez à intégrer ces informations de façon naturelle dans le compte rendu, sans recourir à des formats semi-structurés, par exemple préférez une rédaction naturelle plutôt que « État général : ECOG 1 »).
+
+- À la fin du texte généré, fournissez :
+
++ un dictionnaire listant les formulations utilisées pour chaque diagnostic CIM-10 codable pour le patient : {"Définition officielle du code CIM-10 (code CIM-10)": ["formulation utilisée 1", "formulation utilisée 2", ...],...}
+Par exemple : {"Hypertension artérielle (primitive) (I10)": ["poussée hypertension arterielle", "poussée HTA"],...} 
+Attention : tous les diagnostics du patient doivent être décrit ici, attention en particulier s'il y a des divergences avec le scénario initial, elle doivent être reportées ici.
+
++ un dictionnaire listant les segments textuels utilisés pour décrire les informations suivantes, reproduits strictement à l’identique (copiés-collés depuis le texte généré, sans aucune modification ni interprétation, y compris ponctuation et orthographe) :
+    * Date entrée
+    * Date de sortie
+    * Service d'hospitalisation
+	* Date de l'intervention
+    * Nom/Prénom du chirurgien
+	* Nom/Prénom du patient
+	* Âge
+    * Sexe
+    * État général
+	* Poids
+    * Statut gestationnel (s'il s'agit d'une femme)
+    * Gestité
+    * Médicaments
+    * NFS: résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+    * Créatinine : résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+    * Bilan hepatique: résultats explicites (valeurs ou qualificatifs comme "normal", "élevé",...)
+
+- La sortie doit être un objet JSON au format suivant :
+{"CR": "le text généré", "formulations": {"diagnostics": {...}, "informations": {...}}}
+
+Par exemple : {"CR": "Texte du compte rendu ici...", "formulations": {"diagnostics": {"poussee hypertension arterielle": ["poussée hypertension arterielle", "poussée HTA"]}, "informations": {"Âge": ["55 ans"], "Stade tumoral": ["cT4N1M2"], "Examens pour diagnostic initial": ["TDM thoracique", "IRM cérébrale"]}}}

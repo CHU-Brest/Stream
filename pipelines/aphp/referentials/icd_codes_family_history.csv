@@ -1,0 +1,70 @@
+code;description
+Z80;Antécédents familiaux de tumeur maligne
+Z800;Antécédents familiaux de tumeur maligne des organes digestifs
+Z8000;Antécédents familiaux de tumeur maligne du tube digestif
+Z8001;Antécédents familiaux de tumeur maligne du système hépatobiliaire et du pancréas
+Z8002;Antécédents familiaux de tumeur maligne de la rate
+Z8009;Antécédents familiaux de tumeur maligne des organes digestifs, sans précision
+Z801;Antécédents familiaux de tumeur maligne de la trachée, des bronches et des poumons
+Z802;Antécédents familiaux de tumeur maligne des autres organes respiratoires et intrathoraciques
+Z8020;Antécédents familiaux de tumeur maligne des voies aériennes supérieures et de l'oreille moyenne
+Z8021;Antécédents familiaux de tumeur maligne du coeur
+Z8028;Antécédents familiaux de tumeur maligne d'autres organes intrathoraciques précisés
+Z8029;Antécédents familiaux de tumeur maligne des autres organes respiratoires et intrathoraciques, sans précision
+Z803;Antécédents familiaux de tumeur maligne du sein
+Z804;Antécédents familiaux de tumeur maligne des organes génitaux
+Z805;Antécédents familiaux de tumeur maligne des voies urinaires
+Z806;Antécédents familiaux de leucémie
+Z807;Antécédents familiaux d'autres tumeurs des tissus lymphoïde, hématopoïétique et apparentés
+Z808;Antécédents familiaux de tumeur maligne d'autres systèmes et organes
+Z80800;Antécédents familiaux de tumeur maligne du système nerveux
+Z80801;Antécédents familiaux de tumeur maligne de l'oeil
+Z80802;Antécédents familiaux de tumeur maligne de la gorge et de la bouche
+Z80803;Antécédents familiaux de tumeur maligne de l'appareil musculosquelettique et du tissu conjonctif
+Z80804;Antécédents familiaux de tumeur maligne de la peau et des tissus souscutanés
+Z80805;Antécédents familiaux de tumeur maligne des glandes endocrines
+Z80880;Antécédents familiaux de tumeur maligne d'autres localisations
+Z809;Antécédent familial de tumeur maligne, sans précision
+Z81;Antécédents familiaux de troubles mentaux et du comportement
+Z810;Antécédents familiaux de retard mental
+Z811;Antécédents familiaux d'abus d'alcool
+Z812;Antécédents familiaux de tabagisme
+Z813;Antécédents familiaux d'abus d'autres substances psycho-actives
+Z814;Antécédents familiaux d'abus d'autres substances
+Z818;Antécédents familiaux d'autres troubles mentaux et du comportement
+Z82;Antécédents familiaux de certaines incapacités et maladies chroniques conduisant à l'invalidité
+Z820;Antécédents familiaux d'épilepsie et autres affections neurologiques
+Z821;Antécédents familiaux de cécité et perte de vision
+Z822;Antécédents familiaux de surdité et perte d'audition
+Z823;Antécédents familiaux d'accident cérébrovasculaire
+Z824;Antécédents familiaux de cardiopathies ischémiques et autres maladies de l'appareil circulatoire
+Z825;Antécédents familiaux d'asthme et autres maladies chroniques des voies respiratoires inférieures
+Z826;Antécédents familiaux d'arthrite et autres maladies du système ostéo-articulaire, des muscles et du tissu conjonctif
+Z827;Antécédents familiaux de malformations congénitales et anomalies chromosomiques
+Z828;Antécédents familiaux d'autres incapacités et maladies chroniques conduisant à l'invalidité, non classées ailleurs
+Z83;Antécédents familiaux d'autres maladies spécifiques
+Z830;Antécédents familiaux de maladie due au virus de l'immunodéficience humaine [VIH]
+Z831;Antécédents familiaux d'autres maladies infectieuses et parasitaires
+Z832;Antécédents familiaux de maladies du sang et des organes hématopoïétiques et de certains troubles du système immunitaire
+Z833;Antécédents familiaux de diabète sucré
+Z834;Antécédents familiaux d'autres maladies endocriniennes, nutritionnelles et métaboliques
+Z835;Antécédents familiaux de troubles de la vue et de l'audition
+Z8350;Antécédents familiaux de maladies des organes de la vue
+Z8351;Antécédents familiaux de maladies des organes de l'audition
+Z836;Antécédents familiaux de maladies de l'appareil respiratoire
+Z837;Antécédents familiaux de maladies de l'appareil digestif
+Z8370;Antécédents familiaux de maladies du tube digestif
+Z8371;Antécédents familiaux de maladies du système hépatobiliaire et du pancréas
+Z8372;Antécédents familiaux de maladies de la bouche et des dents
+Z8379;Antécédents familiaux de maladies de l'appareil digestif, sans précision
+Z84;Antécédents familiaux d'autres affections
+Z840;Antécédents familiaux de maladies de la peau et du tissu cellulaire sous-cutané
+Z841;Antécédents familiaux de maladies rénales et de l'uretère
+Z842;Antécédents familiaux d'autres maladies de l'appareil génito-urinaire
+Z8420;Antécédents familiaux d'autres maladies de l'appareil urinaire
+Z8421;Antécédents familiaux d'autres maladies de l'appareil génital
+Z8422;Antécédents familiaux de maladies du sein
+Z843;Antécédents familiaux de consanguinité
+Z848;Antécédents familiaux d'autres affections précisées
+Z8480;Antécédents familiaux de tumeur non maligne
+Z8488;Antécédents familiaux d'autres affections non classées ailleurs

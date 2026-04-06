@@ -1,0 +1,19 @@
+Les catégories Z00-Z99 du chapitre XXI de la CIM-10 sont destinées à l'enregistrement des motifs de recours aux services de santé, autres que maladie, traumatisme ou cause externe classés dans les catégories A00-Y89, ce qui peut se produire dans deux cas principaux:
+
+   1) Quand un sujet, malade ou non, entre en contact avec les services de santé pour une raison précise, par exemple, pour recevoir des soins ou des services de niveau limité pour une affection en cours, pour être donneur d'un organe ou d'un tissu, recevoir une vaccination ou discuter d'un problème qui ne représente pas en soi une maladie ou un traumatisme. Ce qui correspond aux catégories : 
+		- Z00-Z13 Sujets en contact avec les services de santé pour des examens divers 
+		- Z30-Z39 Sujets ayant recours aux services de santé pour des motifs liés à la reproduction
+		- Z40-Z54 Sujets ayant recours aux services de santé pour des actes médicaux et des soins spécifiques
+		- Z70-Z76 Sujets ayant recours aux services de santé pour d'autres motifs 
+
+	2) Quand existent des circonstances ou des problèmes qui influencent l'état de santé d'un sujet, sans constituer en eux-mêmes une maladie ou un traumatisme. De tels facteurs peuvent être retrouvés au cours d'enquêtes de population, alors que le sujet est ou non malade, ou être enregistrés comme facteur supplémentaire dont il faudra se souvenir quand le sujet reçoit des soins pour maladie ou traumatisme. Ce qui correspond aux catégories : 
+		- Z20-Z29 Sujets pouvant courir un risque lié à des maladies transmissibles 
+		- Z55-Z65 Sujets dont la santé peut être menacée par des conditions socio-économiques et psycho-sociales 
+		- Z80-Z99 Sujets dont la santé peut être menacée en raison d'antécédents personnels et familiaux et de certaines affections 
+
+
+GUIDE MÉTHODOLOGIQUE DE PRODUCTION DES INFORMATIONS RELATIVES À L’ACTIVITÉ MÉDICALE ET À SA FACTURATION EN MÉDECINE, CHIRURGIE, OBSTÉTRIQUE ET ODONTOLOGIE
+
+Guide méthodologique de productiuon des situations relatives à l'activité médicale et à sa facturation en médecine
+
+

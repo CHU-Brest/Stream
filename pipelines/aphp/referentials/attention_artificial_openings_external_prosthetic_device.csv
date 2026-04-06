@@ -1,0 +1,50 @@
+code;description
+Z43;Surveillance de stomies
+Z430;Surveillance de trachéostomie
+Z431;Surveillance de gastrostomie
+Z432;Surveillance d'iléostomie
+Z433;Surveillance de colostomie
+Z434;Surveillance d'autres stomies de l'appareil digestif
+Z435;Surveillance de cystostomie
+Z436;Surveillance d'autres stomies des voies urinaires
+Z437;Surveillance de vagin artificiel
+Z438;Surveillance d'autres stomies
+Z439;Surveillance d'une stomie non précisée
+Z44;Mise en place et ajustement d'appareils de prothèse externe
+Z440;Mise en place et ajustement d'un bras artificiel (total) (partiel)
+Z441;Mise en place et ajustement d'une jambe artificielle (totale) (partielle)
+Z442;Mise en place et ajustement d'un oeil artificiel
+Z443;Mise en place et ajustement d'une prothèse externe du sein
+Z448;Mise en place et ajustement d'autres appareils de prothèse externe
+Z449;Mise en place et ajustement d'un appareil de prothèse externe non précisé
+Z45;Ajustement et entretien d'une prothèse interne
+Z450;Ajustement et entretien de dispositifs cardiaques
+Z451;Ajustement et entretien d'une pompe à perfusion
+Z452;Ajustement et entretien d'un dispositif d'accès vasculaire
+Z453;Ajustement et entretien d'une prothèse auditive implantée
+Z458;Ajustement et entretien d'autres prothèses internes
+Z4580;Ajustement et entretien d'une prothèse interne urinaire
+Z4581;Ajustement et entretien d'une prothèse interne génitale
+Z4582;Ajustement et entretien d'une prothèse intra-oculaire
+Z4583;Ajustement et entretien d'une prothèse interne des voies aériennes supérieures
+Z4584;Ajustement et entretien d'une prothèse interne du système nerveux central
+Z4588;Ajustement et entretien d'autres prothèses internes
+Z459;Ajustement et entretien d'une prothèse interne non précisée
+Z46;Mise en place et ajustement d'autres appareils
+Z460;Mise en place et ajustement de lunettes et verres de contact
+Z461;Mise en place et ajustement d'un appareil auditif
+Z462;Mise en place et ajustement d'autres appareils en rapport avec le système nerveux et les organes des sens
+Z463;Mise en place et ajustement d'une prothèse dentaire
+Z464;Mise en place et ajustement d'un appareil orthodontique
+Z465;Mise en place et ajustement d'une iléostomie et autres dispositifs intestinaux
+Z466;Mise en place et ajustement d'un appareil urinaire
+Z467;Mise en place et ajustement d'un appareil orthopédique
+Z468;Mise en place et ajustement d'autres appareils précisés
+Z469;Mise en place et ajustement d'un appareil, sans précision
+Z47;Autres soins de contrôle orthopédiques
+Z470;Soins de contrôle impliquant l'enlèvement d'une plaque et autre prothèse interne (orthopédique) de fixation
+Z478;Autres soins de contrôle orthopédiques précisés
+Z4780;Soins de contrôle d'appareil externe de fixation ou de traction
+Z4788;Autres soins de contrôle orthopédique NCA
+Z479;Soin de contrôle orthopédique, sans précision
+Z490;Soins préparatoires en vue d'une dialyse

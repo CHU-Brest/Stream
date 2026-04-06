@@ -1,0 +1,10 @@
+code;description
+Z510;Séance de radiothérapie
+Z5100;Séance de préparation à une irradiation
+Z5101;Séance d'irradiation
+Z511;Séance de chimiothérapie pour tumeur
+Z512;Autres formes de chimiothérapie
+Z513;Transfusion sanguine (sans mention de diagnostic)
+Z5130;Séance de transfusion de produit sanguin labile
+Z5131;Séance d'aphérèse sanguine
+Z5180;Séance d'oxygénothérapie hyperbare

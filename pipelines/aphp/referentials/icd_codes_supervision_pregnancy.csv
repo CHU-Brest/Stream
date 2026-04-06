@@ -1,0 +1,16 @@
+code;description
+Z34;Surveillance d'une grossesse normale
+Z340;Surveillance d'une première grossesse normale
+Z348;Surveillance d'une autre grossesse normale
+Z349;Surveillance d'une grossesse normale, sans précision
+Z35;Surveillance d'une grossesse à haut risque
+Z350;Surveillance d'une grossesse avec antécédent de stérilité
+Z351;Surveillance d'une grossesse avec antécédent d'avortement
+Z352;Surveillance d'une grossesse avec d'autres antécédents obstétricaux pathologiques et difficultés à procréer
+Z353;Surveillance d'une grossesse avec antécédent de soins prénatals insuffisants
+Z354;Surveillance d'une grossesse avec multiparité élevée
+Z355;Surveillance d'une primipare âgée
+Z356;Surveillance d'une primipare très jeune
+Z357;Surveillance d'une grossesse à haut risque du fait de problèmes sociaux
+Z358;Surveillance d'autres grossesses à haut risque
+Z359;Surveillance de grossesse à haut risque, sans précision

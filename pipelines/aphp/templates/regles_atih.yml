@@ -1,0 +1,482 @@
+---
+regles:
+  - id: D1
+    instruction_id: Règle D1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic (suivi ou non d’un traitement).Ici le séjour a permis le diagnostic de l’affection causale. Le traitement a pu être réalisé au court de l'hospitalisation ou bien être remis à plus tard.
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise en général les chapitres I à XVII et XIX (voire XXII) de la CIM–10. Il ne fait pas appel aux « codes Z », il ne doit donc pas être mentionné de DR dans le RUM.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour diagnostic au cours de la quelle une affection étiologique n'a été retrouvée, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D1). 
+    classification_profile_criteria: 
+      primary_diagnosis: "!= Z"
+  - id: D2
+    instruction_id: Règle D2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic (suivi ou non d’un traitement). Ici il n’a pas été fait de diagnostic étiologique. La symptomatologie qui a motivé l’hospitalisation et qui a été explorée, est le diagnostic principal, qu’elle persiste ou qu’elle ait disparu lors du séjour. Sont équivalentes les situations rencontrées chez un patient atteint d’une affection chronique ou de longue durée connue, antérieurement diagnostiquée, admis pour une symptomatologie qui reste sans diagnostic étiologique. La situation clinique relative à la règle D2 est ainsi la seule exception à la consigne selon laquelle il ne peut être codé dans le RUM que des problèmes de santé présents (actifs) au moment de l’hospitalisation.
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise souvent le chapitre XVIII de la CIM–10 ; il ne fait pas appel aux codes Z, il ne doit donc pas être mentionné de DR dans le RUM. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour diagnostic au cours de la quelle aucune affection étiologique n'a été retrouvée, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D2). 
+    classification_profile_criteria: 
+      primary_diagnosis: "!= Z"
+  - id: D3-1
+    instruction_id: Règle D3
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. Séjour programmé pour exploration diagnostique
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise l'un des codes de la liste des situations de diagnostic des séjours pour exploration diagnostique. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis} 
+      contact_with_health_services: {case_management_type} (Règle D3), 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_overnight_study
+  - id: D3-2
+    instruction_id: Règle D3
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. Séjour programmé pour des tests allergologiques
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise l'un des codes de la liste des situations de diagnostic des séjours pour exploration diagnostique. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} (Règle D3), 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_sensitization_tests
+  - id: D3-3
+    instruction_id: Règle D3
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. Séjour programmé pour bilan pré-oératoire
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise l'un des codes de la liste des situations de diagnostic des séjours pour exploration diagnostique. Ici Z04.802 s’impose comme DP, qu’une affection soit ou non découverte au cours du bilan. Une affection découverte au cours du bilan est enregistrée comme un diagnostic associé.
+    ICD10_coding_instruction: >
+      primary_diagnosis: Aucun (dans cette situation de bilan pré-opératoire on ne code pas de pathologie causale)
+      contact_with_health_services: {case_management_type} (Règle D3), 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_preoperative_assessment
+  - id: D4
+    instruction_id: Règle D4
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic suivi ou non d’un traitement. Ici le séjour est motivée par un antécédent personnel ou familial ou par une symptomatologie quelconque (élévation du PSA, par exemple). Le séjour est en général programmés pour une situation d’examen diagnostique. Au cours du séjour il n'est pas mise en évidence de diagnostic.
+    ICD10_coding_instruction_ATIH: >
+        Le DP est, en l’absence de mise en évidence du diagnostic, la raison des explorations.
+    ICD10_coding_instruction: >
+        primary_diagnosis: en l'absence de mise en évidence d'un diagnostic au cours de l'hospitalisation, aucun diagnostic n'est choisi pour le diagnostic principal, seule code de motif de recours aux soins sera utilisé pour la description du séjour.
+        contact_with_health_services: {case_management_type} (Règle D4),  
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_personnel_history + icd_codes_family_history
+  - id: D5
+    instruction_id: Règle D5
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic suivi ou non d’un traitement. Ici le séjour a permis le diagnostic de l’affection causale et on se trouve dans une situation de poussée aigue d'une maladie chronique. Dans cette situation, le langage médical courant emploie volontiers les qualificatifs de maladie « déséquilibrée », « décompensée », « déstabilisée » ou « exacerbée ». Lorsque le séjour a été motivé par une poussée aigüe d’une maladie chronique ou de longue durée, cette maladie peut être le diagnostic principal. Il importe que le dossier médical contienne les informations étayant le diagnostic de poussée aigüe. La survenue de celle-ci cause une rupture dans la prise en charge de la maladie chronique ou de longue durée. Son traitement impose des mesures thérapeutiques inhabituelles, transitoires, témoignant d’une période critique. Il ne peut pas s’agir seulement, au cours du séjour, de modifications posologiques progressives du traitement antérieur, ou de la mise en place progressive du traitement avec lequel le patient quittera l’unité. On ne doit pas considérer toute maladie chronique ou de longue durée comme étant susceptible de poussée aigüe. Par exemple, on ne doit pas confondre l’aggravation progressive d’une maladie chronique avec la situation de poussée aigüe. L’aboutissement d’une poussée aigüe d’une maladie chronique est en général soit le décès (par exemple, acutisation terminale d’une hémopathie maligne), soit un retour à l’état antérieur (éventuellement aggravé ; par exemple, après une poussée de sclérose en plaques, le patient peut souffrir d’un déficit accentué).
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour poussée aigue d'une maladie chronique, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D5). 
+    classification_profile_criteria:
+      primary_diagnosis: icd_codes_chronic 
+  - id: D6
+    instruction_id: Règle D6
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique.Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic (suivi ou non d’un traitement). Ici le séjour a permis le diagnostic de l’affection causale. On se trouve dans une situation de poussée aigue d'une maladie chronique. Dans cette situation, le langage médical courant emploie volontiers les qualificatifs de maladie « déséquilibrée », « décompensée », « déstabilisée » ou « exacerbée ». Ici la CIM prévoit un code spécifique pour cette poussée aigue. Le diagnostic principal est ce code, il n'y a pas de diagnostic relié.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour poussée aigue d'une maladie chronique pour laquelle la CIM-10 prévoit un code spécifique, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal  (Règle D6). 
+    classification_profile_criteria:
+      primary_diagnosis: icd_codes_acute_attack 
+  - id: D7
+    instruction_id: Règle D7
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic (suivi ou non d’un traitement). Ici le séjour a été motivé par le diagnostic d’une complication d’une maladie chronique ou de longue durée, ou d’une complication du traitement de cette maladie, la complication est le diagnostic principal, que le diagnostic s’accompagne ou non d’un traitement. La règle D7 s’applique dans le cas d’une maladie chronique ou de longue durée connue avant la survenue de la complication. On ne confondra pas la situation avec celle d’une complication révélatrice d’une maladie auparavant méconnue.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour complication d’une maladie chronique ou de longue durée, ou d’une complication du traitement de cette maladie, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D7). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_chronic_complications
+  - id: D8
+    instruction_id: Règle D8
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est ainsi caractérisée par une démarche médicale de nature diagnostique. Celle-ci vise, à partir de la symptomatologie qui a motivé l’hospitalisation, à établir un diagnostic (suivi ou non d’un traitement). Ici on se situe dans une situation d'affection ou lésion intercurrente concomittante mais indépendante d'une maladie chronique ou de longue durée. Lorsque le séjour a été motivé par le diagnostic d’une affection ou d’une lésion intercurrente indépendante de la maladie chronique ou de longue durée, qu’il ait ou non été suivi d’un traitement, l’affection ou la lésion est le DP.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour prise en charge d'une affection ou lésion intercurrente concomittante mais indépendante d'une maladie chronique ou de longue durée, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D8). 
+    classification_profile_criteria: 
+      primary_diagnosis: Not in icd_codes_chronic, Non in icd_codes_acute_attack, Not in icd_codes_chronic_complications
+      icd_secondary_codes: Contains icd_codes_chronic
+      long_term_illness_program: Yes
+  - id: D9
+    instruction_id: Règle D9
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR DIAGNOSTIC. La situation clinique de diagnostic est caractérisée par une démarche médicale de nature diagnostique. Le traitement a pu être réalisé au court de l'hospitalisation ou bien être remis à plus tard. On se trouve ici dans le cadre du bilan initial d’extension d’un cancer. On désigne par « bilan initial d’extension d’un cancer » le séjour au cours duquel sont effectuées les investigations suivant la découverte — le diagnostic positif — d’une maladie maligne, investigations notamment nécessaires pour déterminer son stade (par exemple, selon la classification TNM5) et pour décider du protocole thérapeutique qui sera appliqué (bilan parfois dit de « stadification » préthérapeutique).
+    ICD10_coding_instruction_ATIH: >
+      Dans cette situation, le codage du DP utilise en général les chapitres I à XVII et XIX (voire XXII) de la CIM–10. Il ne fait pas appel aux « codes Z », il ne doit donc pas être mentionné de DR dans le RUM.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour diagnostic au cours de la quelle une affection étiologique n'a été retrouvée, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle D9). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_cancer
+  - id: T1
+    instruction_id: Règle T1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT. La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. On se situe ici dans le cadre d'un traitement répétitif c'est à dire un traitement qui, par nature, imposent une administration répétitive. En d’autres termes, dès la prescription d’un traitement répétitif, le fait qu’il nécessite plusieurs administrations est connu, un calendrier peut en général être fixé à priori. Il existe pour ces situations des codes CIM-10 spécifiques dans les codes de motifs de recours aux soins du chapitre XXI. Par extension on range également dans cette catégorie des traitements identifiés comme répétitfs (séances) mais réalisé une seule fois (par exemple transfusionn, irradiation unique,...).
+    ICD10_coding_instruction_ATIH: >
+      Dans la situation de traitement répétitif, le DP étant un code Z, il faut mentionner l’affection traitée comme diagnostic relié (DR) toutes les fois qu’elle respecte sa définition. C’est le cas dans les exemples ci-dessus et c’est le cas habituel puisque la situation de traitement répétitif concerne en général des maladies chroniques ou de longue durée.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} (Règle T1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_sessions
+  - id: T2-R52
+    instruction_id: Règle T2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle du traitement de la douleur chronique rebelle. Il s'agit d'un séjour dont le motif principal a été une prise en charge spécifiquement algologique, indépendante du traitement de la cause. L’hospitalisationa pu s'être déroulée dans une unité de prise en charge de la douleur chronique.
+    ICD10_coding_instruction_ATIH: >
+      Le DP est codé R52.10 ou R52.18 c’est le cas lorsque l’hospitalisation s’est déroulée dans une unité de prise en charge de la douleur chronique.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation traitement de la douleur chronique rebelle, en dérogation de la règle T1 pour le codage des situations de traitement répétitif, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T2). 
+    classification_profile_criteria: 
+      primary_icd_diagnosis: icd_codes_t2_chronic_intractable_pain
+  - id: T2-R18
+    instruction_id: Règle T2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitaisation pour évacuation du liquide d'ascite.
+    ICD10_coding_instruction_ATIH: >
+       Le code du DP d’un séjour dont le motif principal est l’évacuation d’une ascite est R18;
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour évacuation d’une ascite, en dérogation de la règle T1 pour le codage des situations de traitement répétitif, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T2). 
+    classification_profile_criteria: 
+      primary_icd_diagnosis: icd_codes_ascites   
+  - id: T2-J9
+    instruction_id: Règle T2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitaisation pour évacuation d’une épanchement pleural.
+    ICD10_coding_instruction_ATIH: >
+      Le DP d’un séjour dont le motif principal est l’évacuation d’un épanchement pleural est codé, selon le cas, J90, J91 ou J94.– ;
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour évacuation d’un épanchement pleural, en dérogation de la règle T1 pour le codage des situations de traitement répétitif, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T2). 
+    classification_profile_criteria: 
+      primary_icd_diagnosis: icd_codes_pleural_effusion
+  - id: T2-Toxine
+    instruction_id: Règle T2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitaisation pour injection de toxine botulique.
+    ICD10_coding_instruction_ATIH: >
+      l’affection neurologique (par exemple vessie neurogène réflexe : N31.1, blépharospasme : G24.5, crampe et spasme : R25.2) justifiant l’injection de toxine botulique peut être enregistrée comme DP d’une hospitalisation pour cet acte, dès lors que l’hospitalisation respecte les conditions de prise en charge réalisées sans nuités au sein des établissement de santé. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour évacuation d’un épanchement pleural, en dérogation de la règle T1 pour le codage des situations de traitement répétitif, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T2). 
+    classification_profile_criteria: 
+      procdure: procedure_botulic_toxin
+  - id: T3
+    instruction_id: Règle T3
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour traitement unique chirurgical. Le diagnostic résultant de l'intervention peut être différent du diagnostic préopératoire.
+    ICD10_coding_instruction_ATIH: >
+      Le DP est en général la maladie opérée. Le diagnostic résultant de l'intervention peut être différent du diagnostic préopératoire. Le DP doit en effet être énoncé en connaissance de l'ensemble des informations acquises au cours du séjour (se reporter au point 1.1). Dans cette situation, le DP n’étant pas un code Z, il ne doit pas être mentionné de DR dans le RUM.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour traitement chirugical unique, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T3). 
+    classification_profile_criteria: 
+      drg_parent_code: C
+  - id: T4
+    instruction_id: Règle T4
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour réalisation d'un acte de chirurgie esthétique. On désigne ainsi toute intervention de chirurgie plastique non prise en charge par l’assurance maladie obligatoire. Mais ce détail, lié à la facturation du séjour ne doit pas être spécifiquement mentionné dans le compte rendu d'hospitalisation. Elle correspond en pratique à des situations où le patient ne présente pas de pathologie et l'opération est réalisée à des fins esthétiques.
+    ICD10_coding_instruction_ATIH: >
+       Dans son cas le DP doit toujours être codé Z41.0 ou Z41.1, à l’exclusion de tout autre code. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}, S’agissant de chirurgie esthétique, par conséquent en l’absence d’affection sous-jacente, il n'est pas obligatoire de choisir un diagnostic principal. Toutefois, si le médecin souhaite coder le motif de la demande, on peut utiliser un diagnostic de la CIM-10 pour décrire la situation clinique.
+      contact_with_health_services: {case_management_type} dans cette situation d'hospitalisation du pour traitement chirugical pour raison esthétique, on utilise un code de la catégorie Z41, thérapie sans raison médicale (Règle T4). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_cosmetic_surgery 
+  - id: T5
+    instruction_id: Règle T5
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour réalisation d'un acte de chirurgie plastique non esthétique de réparation d’une lésion congénitale ou acquise.
+    ICD10_coding_instruction_ATIH: >
+      Le DP doit être codé avec un code des chapitres I à XIX ou un code de la catégorie Z42.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} dans cette situation d'hospitalisation pour réalisation d'un acte de chirurgie plastique non esthétique de réparation d’une lésion congénitale ou acquise, on peut utiliser un code de la catégorie Z42, soins de contrôle comprenant une opération plastique (Règle T5). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_plastic_surgery
+  - id: T6
+    instruction_id: Règle T6
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT DE CONFORT. La situation est celle d'une hospitalisation pour réalisation d'un acte de chirurgie de confort, ou d'un acte thérapeutique par voie endoscopique, endovasculaire ou d'imagerie interventionnelle pour confort. Elle correspond en pratique à des situations où le patient ne présente pas de pathologie et l'opération est réalisée pour des raisons non médicale.
+    ICD10_coding_instruction_ATIH: >
+        Le DP de ces séjours doit être codé Z41.80 Intervention de confort , à l’exclusion de tout autre code.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour réalisation pour réalisation d'un acte de chirurgie de confort, ou d'un acte thérapeutique par voie endoscopique, endovasculaire ou d'imagerie interventionnelle de confort (Règle T6). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_comfort_intervention
+  - id: Legal_Abortion
+    instruction_id: Règle IVG
+    clinical_coding_scenario: >
+      HOSPITALISATION IVG. La situation est d'un hospitalisation pour interruption volontaire de grossesse.
+    ICD10_coding_instruction_ATIH: >
+      Le DP du séjour d’IVG est codé avec la catégorie O04 de la CIM–10 interruption médicale volontaire de grossesse.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour interruption volontaire de grossesse, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle IVG). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_legal_abortion
+  - id: Medical_Abortion_before_22_week
+    instruction_id: Règle ITG
+    clinical_coding_scenario: >
+      HOSPITALISATION IVG. La situation est d'un hospitalisation pour interruption médicale de grossesse avant vingt-deux semaines révolues d’aménorrhée.
+    ICD10_coding_instruction_ATIH: >
+      Avant vingt-deux semaines révolues d’aménorrhée, le DP du séjour d’IMG est codé avec la catégorie O04 O04.-1 ; O04.-2 ou O04.-3 interruption médicale de grossesse
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour interruption médicale de grossesse, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle ITG). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_medical_abortion
+      weeks_of_gestation: < 22
+  - id: Medical_Abortion_after_22_week
+    instruction_id: Règle ITG
+    clinical_coding_scenario: >
+      HOSPITALISATION IVG. La situation est d'un hospitalisation pour interruption médicale de grossesse après vingt-deux semaines d’aménorrhée.
+    ICD10_coding_instruction_ATIH: >
+      A partir de vingt- deux semaines révolues d’aménorrhée le DP du séjour d’IMG est la cause fœtale ou maternelle de l’IMG
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour interruption médicale de grossesse, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle ITG). 
+    classification_profile_criteria: 
+      weeks_of_gestation: ">= 22"
+      procedure: therapeutic_abortion
+  - id: Medical_Abortion_after_22_sa
+    instruction_id: Règle ITG
+    clinical_coding_scenario: >
+      HOSPITALISATION IVG. La situation est d'un hospitalisation pour interruption médicale de grossesse avant vingt-deux semaines révolues d’aménorrhée.
+    ICD10_coding_instruction_ATIH: >
+      Le DP du séjour d’IVG est codé avec la catégorie O04 de la CIM–10 interruption médicale volontaire de grossesse.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour interruption médicale de grossesse, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle ITG). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_medical_abortion
+  - id: T7
+    instruction_id: Règle T7
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour prise en charge pour soins spécifiques de stomies, prothèses, autres appareils.
+    ICD10_coding_instruction_ATIH: >
+        le DP fait appel aux catégories Z43 à Z47 ainsi que Z49.0.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour prise en charge pour soins spécifiques de stomies, prothèses, autres appareils. (Règle T7). 
+    classification_profile_criteria: 
+      case_management_type: attention_artificial_openings_external_prosthetic_device
+  - id: T8
+    instruction_id: Règle T8
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour réalisation d'acte thérapeutique par voie endoscopique, endovasculaire ou d'imagerie interventionnelle. On place également dans ces situations des cas de reprise pour un acte thérapeutique par voie endoscopique, endovasculaire ou d'imagerie interventionnelle ou les cas où des actes doivent être réalisés en 2 temps.
+    ICD10_coding_instruction_ATIH: >
+      le DP est en général la maladie sur laquelle on est intervenu.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  dans cette situation d'hospitalisation pour réalisation d'acte thérapeutique par voie endoscopique, endovasculaire ou d'imagerie interventionnelle, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T8). 
+    classification_profile_criteria: 
+      case_management_type: None
+      drg_parent_code: K
+  - id: T9
+    instruction_id: Règle T9
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour traitement médical unique.
+    ICD10_coding_instruction_ATIH: >
+       le DP est l’affection traitée
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  dans cette situation d'hospitalisation pour réalisation d'un traitement médical unique, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T9). 
+    classification_profile_criteria: 
+      case_management_type: None
+      drg_parent_code: M
+      icd_primary_code: Not in icd_codes_chronic, Not Z5101, Not Z512, Not Z515
+  - id: T9-initiation-tt-chronic
+    instruction_id: Règle T9
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle La mise en route du traitement d’une maladie chronique ou de longue durée, c’est-à-dire l’hospitalisation	nécessitée	par	la	première	administration	d’un	traitement médicamenteux appelé à être ensuite poursuivi au long cours.
+    ICD10_coding_instruction_ATIH: >
+       le DP est l’affection traitée
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  dans cette situation d'hospitalisation de mise en route du traitement d’une maladie chronique ou de longue durée, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T9). 
+    classification_profile_criteria: 
+      case_management_type: None
+      drg_parent_code: M
+      icd_primary_code: In icd_codes_chronic, Not in icd_codes_cancer, Not in icd_codes_diabetes
+  - id: T9-diabetes
+    instruction_id: Règle T9
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est d'un patient diabétique. Chez les patients diabétiques non amélioré par une adaptation ambulatoire du traitement, la nécessité d’une rupture dans la prise en charge globale avec changement de la stratégie thérapeutique répondant au moins à l’un des critères suivants : nécessité de recourir à un schéma insulinique avec plusieurs injections quotidiennes d’insuline ou une insulinothérapie par pompe, nécessité de reconsidérer l’approche thérapeutique en cas d’échec d’un traitement insulinique multi injections, nécessité de débuter ou modifier une insulinothérapie chez un patient à haut risque c’est-à-dire présentant au moins l'une des caractéristiques suivantes syndrome coronaire aigu ou AVC il y a moins d’un an, rétinopathie pré proliférative sévère ou proliférative non stabilisée, insuffisance rénale avec un taux de filtration glomérulaire < 30 ml/mn (MDRD ou CKD-EPI) antécédent d’hypoglycémies sévères ou à répétition (plus de 4 par semaine) ou non perçues grossesse chez une patiente diabétique de type 1 ou 2 situation de précarité et d’isolement social. Toute la prise en charge est réévaluée durant l’hospitalisation (règles hygiéno- diététiques, autosurveillance glycémique, traitement oral ou injectable associé à l’insuline, traitement des comorbidités). Il ne peut pas s’agir seulement, au cours du séjour, de modifications posologiques progressives du traitement antérieur, ou de la mise en place progressive du traitement avec lequel le patient quittera l’unité.
+    ICD10_coding_instruction_ATIH: >
+       le DP est l’affection traitée
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  dans cette situation d'hospitalisation de rupture d'un patient diabétique avec changement de la stratégie thérapeutique, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T9). 
+    classification_profile_criteria: 
+      case_management_type: None
+      drg_parent_code: M
+      icd_primary_code: In icd_codes_diabetes_chronic
+  - id: T10-irr
+    instruction_id: Règle T10
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT. La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle de la réalisation d'une curiethérapie et ou d'une irradiation en dose unique.
+    ICD10_coding_instruction_ATIH: >
+       Le DP doit être codé Z5101, comme dans les autres cas d’irradiation externe et interne.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  {case_management_type} utilisé dans cette situation d'hospitalisation pour réalisation d'une curiethérapie et ou d'une irradiations en dose unique (Règle T10). 
+    classification_profile_criteria: 
+      case_management_type: Z5101
+      procdure: procedure_curitherapy, procedure_single_irradiation
+  - id: T10-fer
+    instruction_id: Règle T10
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT. La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle la réalisation d'une hospitalisation pour injection de fer (pour carence martiale) en injection unique.
+    ICD10_coding_instruction_ATIH: >
+       Le DP doit être codé Z512.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  {case_management_type} utilisé dans cette situation d'hospitalisation pour injection de fer (pour carence martiale) en injection unique (Règle T10). 
+    classification_profile_criteria: 
+      case_management_type: Z512
+      primary_diagnosis: icd_codes_iron_deficiency_anemia
+  - id: T11
+    instruction_id: Règle T11
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT. La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une prise en charge en soins palliatifs.
+    ICD10_coding_instruction_ATIH: >
+      Le DP est codé Z515.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  {case_management_type} utilisé dans cette situation d'hospitalisation en soins palliatifs (Règle T11). 
+    classification_profile_criteria: 
+      case_management_type: Z515
+  - id: T12
+    instruction_id: Règle T12
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR ACCOUCHEMENT.  
+    ICD10_coding_instruction_ATIH: >
+      Le DP du séjour est codé O80.0 Accouchement spontané par présentation du sommet . La situation est celle d’un accouchement normal. On désigne ainsi un accouchement en présentation du sommet sans complication chez une femme indemne de toute morbidité obstétricale. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services:  dans cette situation d'hospitalisation d'accouchement normal, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T12). 
+    classification_profile_criteria: 
+      icd_primary_code: icd_codes_spontaneous_vertex_delivery
+  - id: T13
+    instruction_id: Règle T13
+    clinical_coding_scenario: >
+      HOSPITALISATION D'UN NOUVEAU NE.  La situation est celle d’un nouveau né séjournant en maternité avec sa mère. Si un problème de santé est découvert à la naissance ou pendant le séjour en maternité, il est un diagnostic associé significatif du RUM du nouveau-né en maternité.
+    ICD10_coding_instruction_ATIH: >
+      Le DP du séjour du nouveau-né est codé avec la catégorie Z38 Enfants nés vivants, selon le lieu de naissance. Si un problème de santé est découvert à la naissance ou pendant le séjour en maternité, il est un diagnostic associé significatif du RUM du nouveau-né en maternité.
+    ICD10_coding_instruction: >
+      primary_diagnosis: None
+      contact_with_health_services:  {case_management_type} dans cette situation d’un nouveau né séjournant en maternité avec sa mère (Règle T13). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_liveborn_infants
+  - id: T14
+    instruction_id: Règle T14
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour « reprise » d’un traitement unique chirurgical ou lorsque celui-ci se déroule en deux temps, la situation clinique reste de traitement unique : c’est la nature du traitement qui est prise en considération
+    ICD10_coding_instruction_ATIH: >
+        Le DP est le même que celui de la première intervention
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour « reprise » d’un traitement unique chirurgical ou lorsque celui-ci se déroule en deux temps, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic principal (Règle T14).
+    classification_profile_criteria: 
+      case_management_type: surgical_reoperation
+  - id: T15
+    instruction_id: Règle T15
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR TRAITEMENT.  La situation est celle d’un patient atteint d’une affection connue, diagnostiquée avant l’admission, hospitalisé pour le traitement de celle-ci. Les circonstances du diagnostic préalable n’importent pas : le diagnostic de l’affection a pu être fait par un médecin généraliste ou spécialiste « de ville », par un service médical d’urgence et de réanimation (SMUR), lors du passage dans une structure d’accueil des urgences, lors d’un séjour précédent dans une autre unité médicale, y compris l’unité d’hospitalisation de courte durée, du même établissement de santé ou d’un autre, etc. La situation de traitement est présente lorsque le diagnostic de l’affection est fait au moment de l’entrée du patient dans l’unité médicale et que l’admission a pour but le traitement de l’affection. La situation est celle d'une hospitalisation pour réalisation d'une intervention prophylactique.
+    ICD10_coding_instruction_ATIH: >
+      le DP fait appel à la catégorie Z40.
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour réalisation d'une intervention prophylactique (Règle T15). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_prophylactic_intervention
+  - id: S1-Chronic
+    instruction_id: Règle S1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation est celle d’un patient atteint d'une affection connue, antérieurement diagnostiquée, éventuellement traitée (antérieurement traitée ou en cours de traitement), hospitalisé pour la surveillance de celle-ci. Par séjour de surveillance on entend tout séjour visant au suivi médical d’une affection, à faire le point sur son évolution ou sur l’adéquation de son traitement, affection diagnostiquée antérieurement au séjour et déjà traitée (précédemment opérée, par exemple) ou en cours de traitement. Ici on se trouve dans une situation de surveillance d'une maladie chronique ou de longue durée : elle correspond en particulier à l’appellation courante de « bilan » ; elle concerne souvent — mais pas seulement — des prises en charge « à froid », programmées, de brève durée ; au cours ou au terme du séjour, des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques prises : institution, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS). La modification, l’adaptation, pendant ou au terme du séjour, du traitement d’une affection connue, antérieurement diagnostiquée, antérieurement traitée ou en cours de traitement, ne transforme pas une situation de surveillance négative en situation de traitement et n’autorise pas à coder l’affection comme DP. Les prescriptions (examens paracliniques, modification du traitement) conséquences des constatations ou investigations faites au cours d’un séjour pour surveillance font partie de la surveillance, à l’exception du cas particulier de la nécessité d’une rupture de la prise en charge globale avec changement thérapeutique chez les patients diabétiques.
+    ICD10_coding_instruction_ATIH: >
+      Le DP est un « code Z ».
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour surveillance négative d'une pathologie chronique (Règle S1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_supervision_chronic_disease
+  - id: S1-Chir
+    instruction_id: Règle S1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation est celle d’un patient atteint d'une affection connue ayant bénéificié d'un traitement chirurgical, hospitalisé pour la surveillance post chirurgicale. Par séjour de surveillance on entend tout séjour visant au suivi médical d’une affection, à faire le point sur son évolution ou sur l’adéquation du traitement (ici chirurgical); au cours ou au terme du séjour, des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques prises : institution, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+      
+    ICD10_coding_instruction_ATIH: >
+      Le DP est un « code Z ».
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour surveillance négative post chirugicale (Règle S1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_surgical_followup
+  - id: S1-Chir
+    instruction_id: Règle S1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation est celle d’un patient atteint d'une affection connue ayant bénéificié d'un traitement chirurgical, hospitalisé pour la surveillance post chirurgicale. Par séjour de surveillance on entend tout séjour visant au suivi médical d’une affection, à faire le point sur son évolution ou sur l’adéquation du traitement (ici chirurgical); au cours ou au terme du séjour, des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques prises : institution, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+      *** Instruction *** : Dans le cas présent pensez à bien faire mention dans le texte du CRH de la chirurgie récente pour laquelle le patient est hospitalisé.
+    ICD10_coding_instruction_ATIH: >
+      Le DP est un « code Z ».
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour surveillance négative post chirugicale (Règle S1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_surgical_followup
+  - id: S1-Preg
+    instruction_id: Règle S1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation d'une hospitalisation pour la surveillance de grossesse. Par séjour de surveillance on entend tout séjour visant au suivi médical de la grossesse, à faire le point sur son évolution ou sur l’adéquation d'éventuels traitement mises en place. Des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques peuvent être prises au cours du séjour : poursuite de l'hospitalisation, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+    ICD10_coding_instruction_ATIH: >
+      Le DP est un « code Z ».
+    ICD10_coding_instruction: >
+      primary_diagnosis: None
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour surveillance négative d'une grossesse (Règle S1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_supervision_pregnancy
+  - id: S1-Postpartum
+    instruction_id: Règle S1
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation est celle d'une hospitalisation pour surveillance post accouchement. Par séjour de surveillance on entend tout séjour visant au suivi médical de la grossesse, à faire le point sur son évolution ou sur l’adéquation d'éventuels traitement mises en place. Des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques peuvent être prises au cours du séjour : poursuite de l'hospitalisation, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+    ICD10_coding_instruction_ATIH: >
+      Le DP est un « code Z ».
+    ICD10_coding_instruction: >
+      primary_diagnosis: None
+      contact_with_health_services: {case_management_type} utilisé dans cette situation d'hospitalisation pour surveillance négative d'une grossesse (Règle S1). 
+    classification_profile_criteria: 
+      case_management_type: icd_codes_supervision_post_partum
+  - id: S2
+    instruction_id: Règle S2
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation d'une hospitalisation pour la surveillance d'un patient ayant bénéficié d'une greffe d'organe ou de cellules souches hématopoïétiques (au cours d'une précédente hopsitalisation pouvant remontée à plusieurs années). Par séjour de surveillance on entend tout séjour visant au suivi médical d’une affection, à faire le point sur son évolution ou sur l’adéquation de son traitement, affection diagnostiquée antérieurement au séjour et déjà traitée (précédemment opérée, par exemple) ou en cours de traitement. Ici on se trouve dans une situation de surveillance d'une maladie chronique ou de longue durée : elle correspond en particulier à l’appellation courante de « bilan » ; elle concerne souvent — mais pas seulement — des prises en charge « à froid », programmées, de brève durée ; au cours ou au terme du séjour, des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques prises : institution, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle en particulier de complication, la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+    ICD10_coding_instruction_ATIH: >
+      Les codes de la catégorie Z94 s’imposent en position de DP dans les situations de surveillance négative d’un patient transplanté, c'est-à-dire pour les séjours de surveillance après greffe d’organe ou de tissu au terme desquels il n’est pas diagnostiqué de complication. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour surveillance négative d'un patient greffé, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic de porteur de greffe (Règle S2). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_transplanted_organ
+  - id: S3
+    instruction_id: Règle S3
+    clinical_coding_scenario: >
+      HOSPITALISATION POUR SURVEILLANCE.  La situation d'une hospitalisation pour la surveillance d'un patient porteur d’un implant ou d’une greffe cardiovasculaire compris dans la catégorie CIM 10 Z95. Par séjour de surveillance on entend tout séjour visant au suivi médical d’une affection, à faire le point sur son évolution ou sur l’adéquation de son traitement, affection diagnostiquée antérieurement au séjour et déjà traitée (précédemment opérée, par exemple) ou en cours de traitement. Ici on se trouve dans une situation de surveillance d'une maladie chronique ou de longue durée : elle correspond en particulier à l’appellation courante de « bilan » ; elle concerne souvent — mais pas seulement — des prises en charge « à froid », programmées, de brève durée ; au cours ou au terme du séjour, des investigations ultérieures peuvent être programmées ou des décisions thérapeutiques prises : institution, poursuite ou modification d’un traitement, indication opératoire, etc. ; Cependant dans le cas présent, il n'a pas été découvert d’affection nouvelle en particulier de complication, la surveillance est dite négative. Si une affection sans rapport avec la maladie surveillée est découverte incidemment au cours du séjour, conformément à la définition du DP la situation est néanmoins de surveillance négative car l’affection découverte n’est pas « le problème de santé qui a motivé l’admission ». L’affection découverte est un diagnostic associé significatif (DAS).
+    ICD10_coding_instruction_ATIH: >
+      Les codes de la catégorie Z95 s’imposent en position de DP dans les situations de surveillance négative d’un patient porteur d’un implant ou d’une greffe cardiovasculaire compris dans la catégorie. 
+    ICD10_coding_instruction: >
+      primary_diagnosis: {primary_icd_diagnosis}
+      contact_with_health_services: dans cette situation d'hospitalisation pour surveillance négative d'un patient porteur d’un implant ou d’une greffe cardiovasculaire compris dans la catégorie CIM 10 Z95, on n'utilise pas de code complémentaire de motifs de recours aux services de santé, le motif de recours aux services de santé est le diagnostic de porteur de greffe (Règle S3). 
+    classification_profile_criteria: 
+      primary_diagnosis: icd_codes_cardic_vascular_implants
