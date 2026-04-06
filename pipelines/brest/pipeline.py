@@ -16,6 +16,7 @@ import polars as pl
 from tqdm import tqdm
 
 from pipelines.pipeline import BasePipeline
+from pipelines.brest import constants, sampler
 
 
 class BrestPipeline(BasePipeline):
@@ -28,15 +29,7 @@ class BrestPipeline(BasePipeline):
 
     name = "brest"
 
-    SOURCES = {
-        "dp": "PMSI_DP.csv",
-        "ccam": "PMSI_CCAM_DP.csv",
-        "das": "PMSI_DAS.csv",
-        "dms": "PMSI_DMS.csv",
-        "rghm": "ALL_CLASSIF_PMSI.csv",
-        "cim10": "ALL_CIM10.csv",
-        "ccam_ref": "ALL_CCAM.csv",
-    }
+    SOURCES = constants.SOURCES
 
     # -- Data loading ------------------------------------------------------
 
