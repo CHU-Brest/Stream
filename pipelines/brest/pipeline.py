@@ -103,8 +103,8 @@ class BrestPipeline(BasePipeline):
         ccam_str = df["CCAM"].list.join(", ")
         ccam_str = pl.when(ccam_str == "").then(pl.lit("Aucun")).otherwise(ccam_str)
 
-        ghm5_display = pl.format("{}{} ({})", pl.col("GHM5"), pl.col("GHM5_CODE"))
-        dp_display = pl.format("{}{} ({})", pl.col("DP"), pl.col("DP_CODE"))
+        ghm5_display = pl.format("{} ({})", pl.col("GHM5"), pl.col("GHM5_CODE"))
+        dp_display = pl.format("{} ({})", pl.col("DP"), pl.col("DP_CODE"))
 
         scenario = pl.concat_str(
             [
