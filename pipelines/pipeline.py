@@ -12,9 +12,8 @@ from datetime import datetime
 from pathlib import Path
 
 import polars as pl
-from tqdm import tqdm
 
-from core.clients import OllamaClient, AnthropicClient, MistralClient
+from core.clients import AnthropicClient, MistralClient, OllamaClient
 from core.logger import get_logger
 
 REPORT_SCHEMA = {
@@ -61,7 +60,7 @@ class BasePipeline(ABC):
         """Transform fictitious stays into text scenarios for the LLM."""
 
     # -- LLM report generation (shared) ------------------------------------
-
+    @abstractmethod
     def get_report(
         self,
         df: pl.DataFrame,
@@ -79,50 +78,9 @@ class BasePipeline(ABC):
         pl.DataFrame
             Columns: generation_id, scenario, report, model, timestamp.
         """
-        if "generation_id" not in df.columns:
-            raise ValueError(
-                "Le DataFrame doit contenir une colonne 'generation_id'. "
-                "Assurez-vous de passer par get_fictive avant get_report."
-            )
-
-        system_prompt: str = self.prompt["generate"]["system_prompt"]
-        output_dir = Path(self.config["data"]["output"])
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        results: list[dict] = []
-        batch: list[dict] = []
-
-        for df_row in tqdm(
-            df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)
-        ):
-            response = client.chat(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": df_row["scenario"]},
-                ],
-            )
-            row = {
-                "generation_id": df_row["generation_id"],
-                "scenario": df_row["scenario"],
-                "report": response["message"]["content"],
-                "model": model,
-                "timestamp": datetime.now(),
-            }
-            results.append(row)
-            batch.append(row)
-
-            if len(batch) >= batch_size:
-                _flush_batch(batch, output_dir, batch_size)
-                batch = []
-
-        if batch:
-            _flush_batch(batch, output_dir, len(batch))
-
-        return pl.DataFrame(results, schema=REPORT_SCHEMA)
 
 
-def _flush_batch(batch: list[dict], output_dir: Path, count: int) -> None:
+def flush_batch(batch: list[dict], output_dir: Path, count: int) -> None:
     """Write a batch of results to a timestamped Parquet file."""
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = output_dir / f"medical_reports_{count}_{ts}.parquet"

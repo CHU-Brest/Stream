@@ -23,7 +23,7 @@ from typing import Any
 import polars as pl
 from tqdm import tqdm
 
-from pipelines.pipeline import REPORT_SCHEMA, _flush_batch
+from pipelines.pipeline import REPORT_SCHEMA, flush_batch
 
 # ---------------------------------------------------------------------------
 # Common CRH-generation helpers
@@ -84,7 +84,9 @@ def generate_reports(
     results: list[dict] = []
     batch: list[dict] = []
 
-    for df_row in tqdm(df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)):
+    for df_row in tqdm(
+        df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)
+    ):
         if pipeline_type == "aphp":
             response = client.chat(
                 model=model,
@@ -112,10 +114,10 @@ def generate_reports(
         batch.append(row)
 
         if len(batch) >= batch_size:
-            _flush_batch(batch, output_dir, batch_size)
+            flush_batch(batch, output_dir, batch_size)
             batch = []
 
     if batch:
-        _flush_batch(batch, output_dir, len(batch))
+        flush_batch(batch, output_dir, len(batch))
 
     return pl.DataFrame(results, schema=REPORT_SCHEMA)
