@@ -11,10 +11,10 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 
-import httpx
 import polars as pl
 from tqdm import tqdm
 
+from core.clients import OllamaClient, AnthropicClient, MistralClient
 from core.logger import get_logger
 
 REPORT_SCHEMA = {
@@ -24,84 +24,6 @@ REPORT_SCHEMA = {
     "model": pl.Utf8,
     "timestamp": pl.Datetime,
 }
-
-
-class AnthropicClient:
-    """Anthropic (Claude) client normalised to the ``chat()`` interface.
-
-    Parameters
-    ----------
-    api_key:
-        Anthropic API key.
-    verify:
-        ``True`` (default), ``False``, or path to a CA bundle (``.pem``).
-    """
-
-    def __init__(self, api_key: str, verify: bool | str = True) -> None:
-        from anthropic import Anthropic
-
-        self._client = Anthropic(
-            api_key=api_key, http_client=httpx.Client(verify=verify)
-        )
-
-    def chat(self, model: str, messages: list[dict], **kwargs) -> dict:
-        system: str | None = None
-        chat_messages: list[dict] = []
-        for msg in messages:
-            if msg["role"] == "system":
-                system = msg["content"]
-            else:
-                chat_messages.append(msg)
-
-        params: dict = dict(
-            model=model,
-            max_tokens=kwargs.get("max_tokens", 4096),
-            messages=chat_messages,
-        )
-        if system:
-            params["system"] = system
-
-        response = self._client.messages.create(**params)  # type: ignore[arg-type]
-
-        return {
-            "message": {
-                "role": "assistant",
-                "content": response.content[0].text,
-            }
-        }
-
-
-class MistralClient:
-    """Mistral client normalised to the ``chat()`` interface.
-
-    Parameters
-    ----------
-    api_key:
-        Mistral API key.
-    verify:
-        ``True`` (default), ``False``, or path to a CA bundle (``.pem``).
-    """
-
-    def __init__(self, api_key: str, verify: bool | str = True) -> None:
-        from mistralai import Mistral
-
-        self._client = Mistral(api_key=api_key)
-        if verify is not True:
-            self._client.client._client = httpx.Client(verify=verify)
-
-    def chat(self, model: str, messages: list[dict], **kwargs) -> dict:
-        response = self._client.chat.complete(
-            model=model,
-            max_tokens=kwargs.get("max_tokens", 4096),
-            messages=messages,
-        )
-
-        return {
-            "message": {
-                "role": "assistant",
-                "content": response.choices[0].message.content,
-            }
-        }
 
 
 class BasePipeline(ABC):
@@ -143,7 +65,7 @@ class BasePipeline(ABC):
     def get_report(
         self,
         df: pl.DataFrame,
-        client: AnthropicClient | MistralClient,
+        client: AnthropicClient | MistralClient | OllamaClient,
         model: str,
         batch_size: int = 1000,
     ) -> pl.DataFrame:
@@ -170,7 +92,9 @@ class BasePipeline(ABC):
         results: list[dict] = []
         batch: list[dict] = []
 
-        for df_row in tqdm(df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)):
+        for df_row in tqdm(
+            df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)
+        ):
             response = client.chat(
                 model=model,
                 messages=[
@@ -196,35 +120,6 @@ class BasePipeline(ABC):
             _flush_batch(batch, output_dir, len(batch))
 
         return pl.DataFrame(results, schema=REPORT_SCHEMA)
-
-    # -- LLM client factory (shared) ---------------------------------------
-
-    def get_client(self, client_type: str = "ollama") -> tuple[AnthropicClient | MistralClient, str]:
-        """Instantiate an LLM client and return ``(client, model_name)``."""
-        if client_type == "ollama":
-            from ollama import Client
-
-            cfg = self.servers["ollama"]
-            return Client(cfg["host"]), cfg["model"]
-
-        if client_type == "claude":
-            cfg = self.servers["claude"]
-            return AnthropicClient(
-                api_key=cfg["api_key"],
-                verify=cfg.get("verify", True),
-            ), cfg["model"]
-
-        if client_type == "mistral":
-            cfg = self.servers["mistral"]
-            return MistralClient(
-                api_key=cfg["api_key"],
-                verify=cfg.get("verify", True),
-            ), cfg["model"]
-
-        raise ValueError(
-            f"Type de client inconnu : '{client_type}'. "
-            "Valeurs acceptées : ollama, claude, mistral."
-        )
 
 
 def _flush_batch(batch: list[dict], output_dir: Path, count: int) -> None:

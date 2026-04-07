@@ -12,11 +12,9 @@ from pathlib import Path
 
 import polars as pl
 
-from pipelines.pipeline import BasePipeline
-from pipelines.fictive import generate_fictive_stays
-from pipelines.scenario import format_scenarios
-from pipelines.report import generate_reports
 from pipelines.brest import constants
+from pipelines.fictive import generate_fictive_stays
+from pipelines.pipeline import BasePipeline
 
 
 class BrestPipeline(BasePipeline):
@@ -174,9 +172,7 @@ def _ccam_fallback(
 
 def _draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
     """Draw DAS codes sequentially with ICD-10 category exclusion and fallback."""
-    deduped_pools = [
-        pool.group_by("DAS").agg(pl.col("P_DAS").sum()) for pool in pools
-    ]
+    deduped_pools = [pool.group_by("DAS").agg(pl.col("P_DAS").sum()) for pool in pools]
 
     codes: list[str] = []
     cats: list[str] = []
@@ -188,9 +184,7 @@ def _draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
             if codes:
                 filtered = filtered.filter(~pl.col("DAS").is_in(codes))
             if cats:
-                filtered = filtered.filter(
-                    ~pl.col("DAS").str.slice(0, 2).is_in(cats)
-                )
+                filtered = filtered.filter(~pl.col("DAS").str.slice(0, 2).is_in(cats))
             if filtered.is_empty() or filtered["P_DAS"].sum() <= 0:
                 continue
             idx = _weighted_choice(filtered["P_DAS"], size=1, replace=False)

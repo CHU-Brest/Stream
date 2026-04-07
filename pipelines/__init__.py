@@ -17,10 +17,10 @@ Base classes:
 - :mod:`pipelines.pipeline`: Common pipeline infrastructure.
 """
 
+from core.clients import AnthropicClient, MistralClient
 from pipelines.fictive import generate_fictive_stays
-from pipelines.scenario import format_scenarios
 from pipelines.report import generate_reports
-from pipelines.pipeline import BasePipeline, AnthropicClient, MistralClient
+from pipelines.scenario import format_scenarios
 
 __all__ = [
     "generate_fictive_stays",

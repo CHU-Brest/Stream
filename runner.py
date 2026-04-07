@@ -3,8 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from core.config import load_config
-from pipelines.brest.pipeline import BrestPipeline
+from core.clients import get_client
 from pipelines.aphp.pipeline import APHPPipeline
+from pipelines.brest.pipeline import BrestPipeline
 
 PIPELINES = {
     "brest": BrestPipeline,
@@ -51,5 +52,5 @@ def run(
     )
     df = pipeline.get_scenario(df)
 
-    client, model = pipeline.get_client(client_type)
+    client, model = get_client(pipeline.servers, client_type)
     pipeline.get_report(df, client, model, batch_size=batch_size)
