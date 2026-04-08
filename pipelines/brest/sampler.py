@@ -10,13 +10,13 @@ import numpy as np
 import polars as pl
 
 
-def _format_display(code: str, ref_map: dict[str, str]) -> str:
+def format_display(code: str, ref_map: dict[str, str]) -> str:
     """Format as ``'label (code)'``, or just ``code`` if no label found."""
     lib = ref_map.get(code)
     return f"{lib} ({code})" if lib else code
 
 
-def _build_dms_lookup(dms_df: pl.DataFrame) -> dict[str, tuple[float, float, float]]:
+def build_dms_lookup(dms_df: pl.DataFrame) -> dict[str, tuple[float, float, float]]:
     """Build a GHM5 → (P25, P50, P75) lookup for triangular sampling."""
     lookup: dict[str, tuple[float, float, float]] = {}
     for row in dms_df.iter_rows(named=True):
@@ -28,20 +28,20 @@ def _build_dms_lookup(dms_df: pl.DataFrame) -> dict[str, tuple[float, float, flo
     return lookup
 
 
-def _build_ref_map(ref_df: pl.DataFrame) -> dict[str, str]:
+def build_ref_map(ref_df: pl.DataFrame) -> dict[str, str]:
     """Build a ``col[0] → col[1]`` dict from a two-column reference frame."""
     cols = ref_df.columns
     return dict(zip(ref_df[cols[0]].to_list(), ref_df[cols[1]].to_list()))
 
 
-def _weighted_choice(weights: pl.Series, size: int, replace: bool = True) -> np.ndarray:
+def weighted_choice(weights: pl.Series, size: int, replace: bool = True) -> np.ndarray:
     """Weighted random draw via numpy. Weights are auto-normalised."""
     p = weights.to_numpy().astype(np.float64)
     p /= p.sum()
     return np.random.choice(len(p), size=size, replace=replace, p=p)
 
 
-def _ccam_fallback(
+def ccam_fallback(
     ccam_df: pl.DataFrame,
     row: dict,
     dp_cat: str,
@@ -59,11 +59,9 @@ def _ccam_fallback(
     return None
 
 
-def _draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
+def draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
     """Draw DAS codes sequentially with ICD-10 category exclusion and fallback."""
-    deduped_pools = [
-        pool.group_by("DAS").agg(pl.col("P_DAS").sum()) for pool in pools
-    ]
+    deduped_pools = [pool.group_by("DAS").agg(pl.col("P_DAS").sum()) for pool in pools]
 
     codes: list[str] = []
     cats: list[str] = []
@@ -75,12 +73,10 @@ def _draw_das_from_pools(pools: list[pl.DataFrame], n: int) -> list[str]:
             if codes:
                 filtered = filtered.filter(~pl.col("DAS").is_in(codes))
             if cats:
-                filtered = filtered.filter(
-                    ~pl.col("DAS").str.slice(0, 2).is_in(cats)
-                )
+                filtered = filtered.filter(~pl.col("DAS").str.slice(0, 2).is_in(cats))
             if filtered.is_empty() or filtered["P_DAS"].sum() <= 0:
                 continue
-            idx = _weighted_choice(filtered["P_DAS"], size=1, replace=False)
+            idx = weighted_choice(filtered["P_DAS"], size=1, replace=False)
             code = filtered[int(idx[0]), "DAS"]
             codes.append(code)
             cats.append(code[:2])

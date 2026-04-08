@@ -8,16 +8,21 @@ as needed.
 
 from __future__ import annotations
 
+import random as _random
+import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, override
 
+import numpy as np
 import polars as pl
+from tqdm import tqdm
 
-from pipelines.pipeline import BasePipeline
+from pipelines.aphp import loader, managment, prompt
+from pipelines.aphp import scenario as sc
 from pipelines.fictive import generate_fictive_stays
-from pipelines.scenario import format_scenarios
+from pipelines.pipeline import BasePipeline
 from pipelines.report import generate_reports
-from pipelines.aphp import loader, prompt
+from pipelines.scenario import format_scenarios
 
 
 class APHPPipeline(BasePipeline):
@@ -39,12 +44,15 @@ class APHPPipeline(BasePipeline):
     # 1 — check_data
     # ------------------------------------------------------------------
 
+    @override
     def check_data(self) -> None:
         """Verify that the PMSI input directory exists and contains expected files."""
         self.logger.info("Vérification des données d'entrée pour le pipeline AP-HP.")
         input_dir = Path(self.config["data"]["input"])
         if not input_dir.is_dir():
-            self.logger.error("Le répertoire de données AP-HP est introuvable : %s", input_dir)
+            self.logger.error(
+                "Le répertoire de données AP-HP est introuvable : %s", input_dir
+            )
             raise FileNotFoundError(
                 f"Le répertoire de données AP-HP est introuvable : {input_dir}\n"
                 "Créez ce répertoire et déposez-y les fichiers PMSI "
@@ -58,7 +66,10 @@ class APHPPipeline(BasePipeline):
 
         referentials_dir = Path(self.config["data"]["referentials"])
         if not referentials_dir.is_dir():
-            self.logger.error("Le répertoire des référentiels AP-HP est introuvable : %s", referentials_dir)
+            self.logger.error(
+                "Le répertoire des référentiels AP-HP est introuvable : %s",
+                referentials_dir,
+            )
             raise FileNotFoundError(
                 f"Le répertoire des référentiels AP-HP est introuvable : {referentials_dir}\n"
                 "Configurez 'data.referentials' dans servers.yaml et copiez-y les "
@@ -71,6 +82,7 @@ class APHPPipeline(BasePipeline):
     # 2 — load_data
     # ------------------------------------------------------------------
 
+    @override
     def load_data(self) -> dict[str, pl.LazyFrame]:
         """Return all referentials + PMSI extracts as ``LazyFrame`` objects."""
         return loader.load_data(
@@ -82,6 +94,7 @@ class APHPPipeline(BasePipeline):
     # 3 — get_fictive
     # ------------------------------------------------------------------
 
+    @override
     def get_fictive(
         self,
         data: dict[str, pl.LazyFrame],
@@ -109,7 +122,7 @@ class APHPPipeline(BasePipeline):
         return generate_fictive_stays(
             data,
             n_sejours=n_sejours,
-            pipeline_type="aphp",
+            generate_fn=generate_aphp_fictive,
             seed=seed,
         )
 
@@ -117,6 +130,7 @@ class APHPPipeline(BasePipeline):
     # 4 — get_scenario
     # ------------------------------------------------------------------
 
+    @override
     def get_scenario(self, df: pl.DataFrame) -> pl.DataFrame:
         """Add ``scenario`` (user prompt) and ``system_prompt`` columns to *df*.
 
@@ -125,14 +139,14 @@ class APHPPipeline(BasePipeline):
         """
         # Load ATIH rules for scenario formatting
         atih_rules = loader.load_atih_rules()
-        
+
         # Import here to avoid circular imports
         from pipelines.aphp import scenario as sc
-        
+
         # Rebuild context to get cancer codes (this could be optimized)
         data = self.load_data()
         sc_ctx = sc.build_context(data)
-        
+
         return format_scenarios(
             df,
             pipeline_type="aphp",
@@ -144,6 +158,7 @@ class APHPPipeline(BasePipeline):
     # 5 — get_report (override: per-row system prompt)
     # ------------------------------------------------------------------
 
+    @override
     def get_report(
         self,
         df: pl.DataFrame,
@@ -167,3 +182,128 @@ class APHPPipeline(BasePipeline):
 
 
 # The _dicts_to_df helper is now in pipelines.fictive.py
+def generate_aphp_fictive(
+    data: dict[str, pl.LazyFrame],
+    n_sejours: int = 10,
+    seed: int | None = None,
+) -> pl.DataFrame:
+    """AP-HP-specific fictive generation (scenario-based sampling)."""
+    rng = _random.Random(seed)
+    np_rng = np.random.default_rng(seed)
+
+    steps = ["Contexte", "Profils", "Scénarios"]
+    pbar = tqdm(steps, desc="AP-HP génération", unit="étape")
+
+    # -- Build context objects (materialise all code sets)
+    pbar.set_description("Construction contexte")
+    sc_ctx = sc.build_context(data)
+    mg_ctx = managment.build_context(data, sc_ctx.cancer_codes, sc_ctx.chronic_codes)
+    pbar.update(1)
+
+    # -- Prepare profiles: join descriptions + LOS stats + specialty
+    pbar.set_description("Chargement profils")
+    profiles_df = sc_ctx.profiles
+
+    # Join drg_parent_description if not already present
+    if "drg_parent_description" not in profiles_df.columns:
+        drg_descr = (
+            data["drg_parents_groups"]
+            .select(["drg_parent_code", "drg_parent_description"])
+            .collect()
+        )
+        profiles_df = profiles_df.join(drg_descr, on="drg_parent_code", how="left")
+
+    # Join LOS stats (los_mean, los_sd) if absent
+    missing_los = (
+        "los_mean" not in profiles_df.columns or "los_sd" not in profiles_df.columns
+    )
+    if missing_los:
+        los_stats = (
+            data["drg_statistics"]
+            .select(["drg_parent_code", "los_mean", "los_sd"])
+            .collect()
+        )
+        profiles_df = profiles_df.join(los_stats, on="drg_parent_code", how="left")
+
+    # Join dominant specialty if absent
+    if "specialty" not in profiles_df.columns:
+        spe = (
+            data["specialty"]
+            .collect()
+            .group_by("drg_parent_code")
+            .agg(pl.col("specialty").first())
+        )
+        profiles_df = profiles_df.join(spe, on="drg_parent_code", how="left")
+
+    # Weighted sampling (weight = nb count)
+    if "nb" in profiles_df.columns:
+        weights = profiles_df["nb"].cast(pl.Float64).fill_null(1.0).to_numpy().copy()
+    else:
+        weights = np.ones(len(profiles_df))
+    weights /= weights.sum()
+
+    indices = np_rng.choice(len(profiles_df), size=n_sejours, replace=True, p=weights)
+    sampled = profiles_df[indices]
+    pbar.update(1)
+
+    # -- Build one scenario per sampled profile
+    pbar.set_description("Construction scénarios")
+    rows: list[dict[str, Any]] = []
+    for profile in tqdm(
+        sampled.iter_rows(named=True),
+        desc="Scénarios",
+        unit="séjour",
+        total=n_sejours,
+        leave=False,
+    ):
+        sc_dict = sc.build_scenario(sc_ctx, profile, rng=rng, np_rng=np_rng)
+
+        # Management decision (coding rule + situa text + template)
+        dec = managment.define_managment_type(sc_dict, mg_ctx, np_rng=np_rng)
+        sc_dict["situa"] = dec.situa
+        sc_dict["coding_rule"] = dec.coding_rule
+        sc_dict["template_name"] = dec.template_name
+
+        sc_dict["generation_id"] = str(uuid.uuid4())
+        rows.append(sc_dict)
+
+    pbar.update(1)
+    pbar.close()
+
+    return _dicts_to_df(rows)
+
+
+def _dicts_to_df(rows: list[dict[str, Any]]) -> pl.DataFrame:
+    """Convert a list of scenario dicts to a Polars DataFrame.
+
+    Polars requires all series to have the same type. We cast list-valued
+    columns (``icd_secondary_code``) to ``pl.List(pl.Utf8)`` explicitly and
+    fall back to ``pl.Utf8`` for anything else that isn't already a scalar.
+    """
+    if not rows:
+        return pl.DataFrame()
+
+    columns: dict[str, pl.Series] = {}
+    all_keys = list(rows[0].keys())
+
+    for key in all_keys:
+        values = [r.get(key) for r in rows]
+        # List-valued columns → List(Utf8)
+        if any(isinstance(v, list) for v in values):
+            columns[key] = pl.Series(
+                key,
+                [v if isinstance(v, list) else [] for v in values],
+                dtype=pl.List(pl.Utf8),
+            )
+        else:
+            try:
+                columns[key] = pl.Series(key, values)
+            except Exception:
+                # Last resort: stringify everything
+                columns[key] = pl.Series(
+                    key,
+                    [str(v) if v is not None else None for v in values],
+                    dtype=pl.Utf8,
+                )
+
+    return pl.DataFrame(columns)
