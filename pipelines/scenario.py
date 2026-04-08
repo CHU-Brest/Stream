@@ -36,8 +36,8 @@ def format_scenarios(
     ----------
     df:
         DataFrame of fictitious stays (output of ``generate_fictive_stays``).
-    pipeline_type:
-        Either "brest" or "aphp" to select the appropriate formatting logic.
+    scenario_fn:
+        Fucntion to generate scenario
     **kwargs:
         Additional pipeline-specific arguments (e.g., ``cancer_codes``,
         ``atih_rules`` for AP-HP).

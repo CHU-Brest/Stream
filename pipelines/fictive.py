@@ -38,8 +38,8 @@ def generate_fictive_stays(
         Dict of LazyFrames returned by the pipeline's ``load_data`` method.
     n_sejours:
         Number of fictitious stays to generate.
-    pipeline_type:
-        Either "brest" or "aphp" to select the appropriate sampling logic.
+    generate_fn:
+        Function to generate dictive stay
     **kwargs:
         Additional pipeline-specific arguments (e.g., ``n_ccam``, ``n_das``
         for Brest; ``seed`` for AP-HP).
