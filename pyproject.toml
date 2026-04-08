@@ -1,0 +1,19 @@
+[project]
+name = "stream"
+version = "0.1.0"
+description = "Synthetic medical-report generation from PMSI statistics and LLMs."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.49.0",
+    "httpx>=0.28.0",
+    "mistralai>=2.3.0",
+    "numpy>=1.26.0",
+    "ollama>=0.6.0",
+    "polars>=1.39.0",
+    "pyyaml>=6.0",
+    "tqdm>=4.67.0",
+]
+
+[project.scripts]
+stream = "cli:main"
