@@ -21,6 +21,7 @@ from pipelines.pipeline import BasePipeline
 from pipelines.report import generate_reports
 from pipelines.scenario import format_scenarios
 from pipelines.aphp.scenario import format_aphp_scenario
+from pipelines.aphp.report import generate_aphp_report
 
 
 class APHPPipeline(BasePipeline):
@@ -169,11 +170,13 @@ class APHPPipeline(BasePipeline):
         Overrides :meth:`~pipelines.pipeline.BasePipeline.get_report` to read
         ``df_row["system_prompt"]`` instead of a single global system prompt.
         """
+        output_dir = Path(self.config["data"]["output"])
         return generate_reports(
             df,
             client,
             model,
             batch_size=batch_size,
-            output_dir=self.config["data"]["output"],
-            pipeline_type="aphp",
+            output_dir=output_dir,
+            generate_fn=generate_aphp_report,
+            system_prompt="",  # just for signature since system from is in the df in the function generate_aphp_report
         )
