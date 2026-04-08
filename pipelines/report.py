@@ -34,29 +34,21 @@ def generate_reports(
     df: pl.DataFrame,
     client: Any,
     model: str,
+    system_prompt: str,
+    generate_fn: Callable[[dict, Any, str], dict],
     batch_size: int = 1000,
     output_dir: str | Path | None = None,
-    pipeline_type: str = "brest",
 ) -> pl.DataFrame:
     """Generate one medical report per scenario via LLM calls.
 
     Parameters
     ----------
-    df:
-        DataFrame of scenarios (output of ``format_scenarios``). Must contain
-        a ``generation_id`` column and either a ``scenario`` column (Brest) or
-        both ``scenario`` and ``system_prompt`` columns (AP-HP).
-    client:
-        LLM client instance (e.g., ``AnthropicClient``, ``MistralClient``).
-    model:
-        Model name to use for generation.
-    batch_size:
-        Number of reports to generate before flushing to disk.
-    output_dir:
-        Directory to write batch Parquet files. If ``None``, uses the
-        configured output directory from the pipeline.
-    pipeline_type:
-        Either "brest" or "aphp" to select the appropriate prompting logic.
+    df: DataFrame of scenarios
+    client: LLM client instance
+    model: model name
+    generate_fn: function to generate a single report from a row
+    batch_size: batch size
+    output_dir: directory to flush results
 
     Returns
     -------
@@ -67,12 +59,6 @@ def generate_reports(
         raise ValueError(
             "Le DataFrame doit contenir une colonne 'generation_id'. "
             "Assurez-vous de passer par get_fictive avant get_report."
-        )
-
-    if pipeline_type == "aphp" and "system_prompt" not in df.columns:
-        raise ValueError(
-            "Le DataFrame doit contenir une colonne 'system_prompt' pour AP-HP. "
-            "Assurez-vous de passer par get_scenario avant get_report."
         )
 
     if output_dir is None:
@@ -87,21 +73,7 @@ def generate_reports(
     for df_row in tqdm(
         df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)
     ):
-        if pipeline_type == "aphp":
-            response = client.chat(
-                model=model,
-                messages=[
-                    {"role": "system", "content": df_row["system_prompt"]},
-                    {"role": "user", "content": df_row["scenario"]},
-                ],
-            )
-        else:  # brest
-            response = client.chat(
-                model=model,
-                messages=[
-                    {"role": "user", "content": df_row["scenario"]},
-                ],
-            )
+        response = generate_fn(df_row, client, model, system_prompt)
 
         row = {
             "generation_id": df_row["generation_id"],

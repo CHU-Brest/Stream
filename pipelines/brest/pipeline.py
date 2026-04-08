@@ -8,19 +8,19 @@ as needed.
 
 from __future__ import annotations
 
-from datetime import datetime
 from pathlib import Path
 from typing import override
 
 import polars as pl
-from tqdm import tqdm
 
 from pipelines.brest import constants
 from pipelines.brest.fictive import generate_brest_fictive
+from pipelines.brest.report import generate_brest_report
 from pipelines.brest.scenario import format_brest_scenario
 from pipelines.fictive import generate_fictive_stays
+from pipelines.pipeline import BasePipeline
 from pipelines.scenario import format_scenarios
-from pipelines.pipeline import REPORT_SCHEMA, BasePipeline, flush_batch
+from pipelines.report import generate_reports
 
 
 class BrestPipeline(BasePipeline):
@@ -115,54 +115,14 @@ class BrestPipeline(BasePipeline):
         model: str,
         batch_size: int = 1000,
     ) -> pl.DataFrame:
-        """Generate one medical report per scenario via LLM calls.
-
-        Results are flushed to timestamped Parquet files every
-        *batch_size* rows in the configured output directory.
-
-        Returns
-        -------
-        pl.DataFrame
-            Columns: generation_id, scenario, report, model, timestamp.
-        """
-        if "generation_id" not in df.columns:
-            raise ValueError(
-                "Le DataFrame doit contenir une colonne 'generation_id'. "
-                "Assurez-vous de passer par get_fictive avant get_report."
-            )
-
-        system_prompt: str = self.prompt["generate"]["system_prompt"]
         output_dir = Path(self.config["data"]["output"])
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-        results: list[dict] = []
-        batch: list[dict] = []
-
-        for df_row in tqdm(
-            df.iter_rows(named=True), desc="Génération CRH", unit="crh", total=len(df)
-        ):
-            response = client.chat(
-                model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": df_row["scenario"]},
-                ],
-            )
-            row = {
-                "generation_id": df_row["generation_id"],
-                "scenario": df_row["scenario"],
-                "report": response["message"]["content"],
-                "model": model,
-                "timestamp": datetime.now(),
-            }
-            results.append(row)
-            batch.append(row)
-
-            if len(batch) >= batch_size:
-                flush_batch(batch, output_dir, batch_size)
-                batch = []
-
-        if batch:
-            flush_batch(batch, output_dir, len(batch))
-
-        return pl.DataFrame(results, schema=REPORT_SCHEMA)
+        system_prompt = self.prompt["generate"]["system_prompt"]
+        return generate_reports(
+            df=df,
+            client=client,
+            model=model,
+            generate_fn=generate_brest_report,
+            batch_size=batch_size,
+            output_dir=output_dir,
+            system_prompt=system_prompt,
+        )
