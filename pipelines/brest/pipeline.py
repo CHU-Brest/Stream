@@ -17,7 +17,9 @@ from tqdm import tqdm
 
 from pipelines.brest import constants
 from pipelines.brest.fictive import generate_brest_fictive
+from pipelines.brest.scenario import format_brest_scenario
 from pipelines.fictive import generate_fictive_stays
+from pipelines.scenario import format_scenarios
 from pipelines.pipeline import REPORT_SCHEMA, BasePipeline, flush_batch
 
 
@@ -103,27 +105,7 @@ class BrestPipeline(BasePipeline):
     @override
     def get_scenario(self, df: pl.DataFrame) -> pl.DataFrame:
         """Format fictitious stays as text scenarios for the LLM."""
-        das_str = df["DAS"].list.join(", ")
-        das_str = pl.when(das_str == "").then(pl.lit("Aucun")).otherwise(das_str)
-
-        ccam_str = df["CCAM"].list.join(", ")
-        ccam_str = pl.when(ccam_str == "").then(pl.lit("Aucun")).otherwise(ccam_str)
-
-        ghm5_display = pl.format("{} ({})", pl.col("GHM5"), pl.col("GHM5_CODE"))
-        dp_display = pl.format("{} ({})", pl.col("DP"), pl.col("DP_CODE"))
-
-        scenario = pl.concat_str(
-            [
-                pl.format("Patient : {}, {}.", pl.col("SEXE"), pl.col("AGE")),
-                pl.format("\nGHM : {}.", ghm5_display),
-                pl.format("\nDiagnostic principal : {}.", dp_display),
-                pl.format("\nActes CCAM : {}.", ccam_str),
-                pl.format("\nDiagnostics associés : {}.", das_str),
-                pl.format("\nDurée de séjour : {} jours.", pl.col("DMS").cast(pl.Utf8)),
-            ],
-        )
-
-        return df.with_columns(scenario.alias("scenario"))
+        return format_scenarios(df, scenario_fn=format_brest_scenario)
 
     @override
     def get_report(

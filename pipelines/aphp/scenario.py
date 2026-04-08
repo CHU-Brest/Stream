@@ -81,7 +81,9 @@ def _build_cancer_codes(cancer_codes_lf: pl.LazyFrame) -> frozenset[str]:
     return frozenset(c for c in full if not c.startswith("Z"))
 
 
-def _build_chronic_codes(chronic_lf: pl.LazyFrame, cancer_codes: frozenset[str]) -> frozenset[str]:
+def _build_chronic_codes(
+    chronic_lf: pl.LazyFrame, cancer_codes: frozenset[str]
+) -> frozenset[str]:
     """Codes flagged chronic in [1,2,3], with cancer codes promoted to 3.
 
     Mirrors utils_v2.py:231–233.
@@ -114,12 +116,18 @@ def _build_synonym_index(synonyms_lf: pl.LazyFrame) -> dict[str, list[str]]:
     """Group synonyms by ICD code: ``{code: [phrasing1, phrasing2, ...]}``."""
     df = synonyms_lf.select(["icd_code", "icd_code_description"]).collect()
     out: dict[str, list[str]] = {}
-    for code, desc in zip(df["icd_code"].to_list(), df["icd_code_description"].to_list()):
+    for code, desc in zip(
+        df["icd_code"].to_list(), df["icd_code_description"].to_list()
+    ):
         out.setdefault(code, []).append(desc)
     return out
 
 
-def _type_secondary_icd(secondary_lf: pl.LazyFrame, cancer_codes: frozenset[str], chronic_codes: frozenset[str]) -> pl.DataFrame:
+def _type_secondary_icd(
+    secondary_lf: pl.LazyFrame,
+    cancer_codes: frozenset[str],
+    chronic_codes: frozenset[str],
+) -> pl.DataFrame:
     """Tag each secondary-diagnosis row as Metastasis / Cancer / Chronic / Acute.
 
     Mirrors ``load_secondary_icd`` (utils_v2.py:438–442).
@@ -147,7 +155,9 @@ def build_context(data: dict[str, pl.LazyFrame]) -> ScenarioContext:
     """
     cancer_codes = _build_cancer_codes(data["cancer_codes"])
     chronic_codes = _build_chronic_codes(data["chronic"], cancer_codes)
-    secondary_typed = _type_secondary_icd(data["secondary_icd"], cancer_codes, chronic_codes)
+    secondary_typed = _type_secondary_icd(
+        data["secondary_icd"], cancer_codes, chronic_codes
+    )
 
     return ScenarioContext(
         profiles=data["profiles"].collect(),
@@ -204,19 +214,55 @@ def lookup_icd_synonym(
 # ---------------------------------------------------------------------------
 
 _SCENARIO_KEYS: tuple[str, ...] = (
-    "age", "sexe", "date_entry", "date_discharge", "date_of_birth",
-    "first_name", "last_name", "icd_primary_code", "case_management_type",
-    "icd_secondary_code", "text_secondary_icd_official", "procedure",
-    "icd_primary_description", "admission_mode", "discharge_disposition",
-    "cancer_stage", "score_TNM", "histological_type",
-    "treatment_recommandation", "chemotherapy_regimen", "biomarkers",
-    "department", "hospital", "first_name_med", "last_name_med",
+    "age",
+    "sexe",
+    "date_entry",
+    "date_discharge",
+    "date_of_birth",
+    "first_name",
+    "last_name",
+    "icd_primary_code",
+    "case_management_type",
+    "icd_secondary_code",
+    "text_secondary_icd_official",
+    "procedure",
+    "icd_primary_description",
+    "admission_mode",
+    "discharge_disposition",
+    "cancer_stage",
+    "score_TNM",
+    "histological_type",
+    "treatment_recommandation",
+    "chemotherapy_regimen",
+    "biomarkers",
+    "department",
+    "hospital",
+    "first_name_med",
+    "last_name_med",
     "template_name",
 )
 
-_GROUPING_SECONDARY_DEFAULT = ["icd_primary_code", "icd_secondary_code", "cage2", "sexe", "nb"]
-_GROUPING_SECONDARY_BY_DRG = ["drg_parent_code", "icd_secondary_code", "cage2", "sexe", "nb"]
-_GROUPING_PROCEDURE = ["procedure", "drg_parent_code", "icd_primary_code", "cage2", "sexe"]
+_GROUPING_SECONDARY_DEFAULT = [
+    "icd_primary_code",
+    "icd_secondary_code",
+    "cage2",
+    "sexe",
+    "nb",
+]
+_GROUPING_SECONDARY_BY_DRG = [
+    "drg_parent_code",
+    "icd_secondary_code",
+    "cage2",
+    "sexe",
+    "nb",
+]
+_GROUPING_PROCEDURE = [
+    "procedure",
+    "drg_parent_code",
+    "icd_primary_code",
+    "cage2",
+    "sexe",
+]
 
 
 def _empty_scenario() -> dict[str, Any]:
@@ -242,9 +288,7 @@ def _append_sampled_secondaries(
         code = row["icd_secondary_code"]
         desc = lookup_icd_description(ctx, code)
         scenario["text_secondary_icd_official"] += _format_secondary_line(code, desc)
-    scenario["icd_secondary_code"].extend(
-        sampled["icd_secondary_code"].to_list()
-    )
+    scenario["icd_secondary_code"].extend(sampled["icd_secondary_code"].to_list())
 
 
 def build_scenario(
@@ -272,7 +316,9 @@ def build_scenario(
     scenario.update(profile)
 
     has_age2 = profile.get("age2") is not None
-    has_secondary_in_profile = "icd_secondary_code" in profile and profile["icd_secondary_code"] not in (None, [])
+    has_secondary_in_profile = "icd_secondary_code" in profile and profile[
+        "icd_secondary_code"
+    ] not in (None, [])
     los = profile.get("los")
     los_mean = profile.get("los_mean")
     los_sd = profile.get("los_sd")
@@ -283,7 +329,9 @@ def build_scenario(
     year = rng.choice(ctx.simulation_years)
 
     # --- Administrative fields
-    scenario["age"] = profile["age2"] if has_age2 else sampler.random_age(profile["cage"], rng=rng)
+    scenario["age"] = (
+        profile["age2"] if has_age2 else sampler.random_age(profile["cage"], rng=rng)
+    )
     scenario["date_entry"], scenario["date_discharge"] = sampler.get_dates_of_stay(
         admission_type=profile.get("admission_type"),
         admission_mode=profile.get("admission_mode"),
@@ -300,7 +348,9 @@ def build_scenario(
         scenario["date_entry"] - dt.timedelta(days=365 * age),
         rng=rng,
     )
-    scenario["first_name"], scenario["last_name"] = sampler.pick_name(ctx.names, profile["sexe"], rng=rng)
+    scenario["first_name"], scenario["last_name"] = sampler.pick_name(
+        ctx.names, profile["sexe"], rng=rng
+    )
     scenario["first_name_med"], scenario["last_name_med"] = sampler.pick_name(
         ctx.names, rng.randint(1, 2), rng=rng
     )
@@ -327,7 +377,9 @@ def build_scenario(
             scenario["biomarkers"] = row.get("biomarkers")
 
     # --- Primary diagnosis descriptions
-    scenario["icd_primary_description"] = lookup_icd_description(ctx, profile.get("icd_primary_code", ""))
+    scenario["icd_primary_description"] = lookup_icd_description(
+        ctx, profile.get("icd_primary_code", "")
+    )
     scenario["case_management_type_description"] = lookup_icd_description(
         ctx, profile.get("case_management_type", "")
     )
@@ -341,13 +393,17 @@ def build_scenario(
             )
 
     if add_secondary:
-        _add_secondary_diagnoses(scenario, ctx, profile, is_cancer, rng=rng, np_rng=np_rng)
+        _add_secondary_diagnoses(
+            scenario, ctx, profile, is_cancer, rng=rng, np_rng=np_rng
+        )
 
     # --- Procedure
     proc_pool = ctx.procedures.select(
         [c for c in _GROUPING_PROCEDURE if c in ctx.procedures.columns]
     )
-    procedures = sampler.sample_conditional(proc_pool, profile, nb=1, rng=rng, np_rng=np_rng)
+    procedures = sampler.sample_conditional(
+        proc_pool, profile, nb=1, rng=rng, np_rng=np_rng
+    )
     if not procedures.is_empty():
         proc_code = procedures["procedure"][0]
         scenario["procedure"] = proc_code
@@ -375,13 +431,19 @@ def _add_secondary_diagnoses(
     # Reset accumulator (matches utils_v2 line 1037)
     scenario["text_secondary_icd_official"] = ""
 
-    grouping = [c for c in _GROUPING_SECONDARY_DEFAULT if c in ctx.secondary_icd.columns]
+    grouping = [
+        c for c in _GROUPING_SECONDARY_DEFAULT if c in ctx.secondary_icd.columns
+    ]
 
     # --- Chronic diseases (and cancer when not cancer-primary)
     if is_cancer:
-        chronic_pool = ctx.secondary_icd.filter(pl.col("type") == "Chronic").select(grouping)
+        chronic_pool = ctx.secondary_icd.filter(pl.col("type") == "Chronic").select(
+            grouping
+        )
     else:
-        chronic_pool = ctx.secondary_icd.filter(pl.col("type").is_in(["Chronic", "Cancer"])).select(grouping)
+        chronic_pool = ctx.secondary_icd.filter(
+            pl.col("type").is_in(["Chronic", "Cancer"])
+        ).select(grouping)
     chronic = sampler.sample_conditional(
         chronic_pool, profile, distinct_chapter=True, rng=rng, np_rng=np_rng
     )
@@ -398,21 +460,29 @@ def _add_secondary_diagnoses(
         tnm = scenario.get("score_TNM")
         if tnm and not isinstance(tnm, float):
             if re.search(r"N[123x+]", tnm):
-                pool = ctx.secondary_icd.filter(pl.col("type") == "Metastasis LN").select(grouping)
+                pool = ctx.secondary_icd.filter(
+                    pl.col("type") == "Metastasis LN"
+                ).select(grouping)
                 _append_sampled_secondaries(
                     scenario,
-                    sampler.sample_conditional(pool, profile, nb=1, rng=rng, np_rng=np_rng),
+                    sampler.sample_conditional(
+                        pool, profile, nb=1, rng=rng, np_rng=np_rng
+                    ),
                     ctx,
                 )
             if re.search(r"M[123x+]", tnm):
-                pool = ctx.secondary_icd.filter(pl.col("type") == "Metastasis").select(grouping)
+                pool = ctx.secondary_icd.filter(pl.col("type") == "Metastasis").select(
+                    grouping
+                )
                 _append_sampled_secondaries(
                     scenario,
                     sampler.sample_conditional(pool, profile, rng=rng, np_rng=np_rng),
                     ctx,
                 )
         else:
-            pool = ctx.secondary_icd.filter(pl.col("type").is_in(["Metastasis", "Metastasis LN"])).select(grouping)
+            pool = ctx.secondary_icd.filter(
+                pl.col("type").is_in(["Metastasis", "Metastasis LN"])
+            ).select(grouping)
             _append_sampled_secondaries(
                 scenario,
                 sampler.sample_conditional(pool, profile, rng=rng, np_rng=np_rng),
@@ -420,10 +490,35 @@ def _add_secondary_diagnoses(
             )
 
     # --- Acute complications (grouped by drg_parent_code, not icd_primary_code)
-    grouping_acute = [c for c in _GROUPING_SECONDARY_BY_DRG if c in ctx.secondary_icd.columns]
-    acute_pool = ctx.secondary_icd.filter(pl.col("type") == "Acute").select(grouping_acute)
+    grouping_acute = [
+        c for c in _GROUPING_SECONDARY_BY_DRG if c in ctx.secondary_icd.columns
+    ]
+    acute_pool = ctx.secondary_icd.filter(pl.col("type") == "Acute").select(
+        grouping_acute
+    )
     _append_sampled_secondaries(
         scenario,
         sampler.sample_conditional(acute_pool, profile, rng=rng, np_rng=np_rng),
         ctx,
+    )
+
+
+def format_aphp_scenario(
+    df: pl.DataFrame,
+    cancer_codes: frozenset[str],
+    atih_rules: dict[str, dict],
+) -> pl.DataFrame:
+    """AP-HP-specific scenario formatting (rich clinical prompts)."""
+    from pipelines.aphp import prompt
+
+    user_prompts: list[str] = []
+    system_prompts: list[str] = []
+
+    for row in df.iter_rows(named=True):
+        user_prompts.append(prompt.make_user_prompt(row, cancer_codes, atih_rules))
+        system_prompts.append(prompt.load_system_prompt(row["template_name"]))
+
+    return df.with_columns(
+        pl.Series("scenario", user_prompts, dtype=pl.Utf8),
+        pl.Series("system_prompt", system_prompts, dtype=pl.Utf8),
     )

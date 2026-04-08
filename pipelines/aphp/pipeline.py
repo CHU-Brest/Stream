@@ -20,6 +20,7 @@ from pipelines.fictive import generate_fictive_stays
 from pipelines.pipeline import BasePipeline
 from pipelines.report import generate_reports
 from pipelines.scenario import format_scenarios
+from pipelines.aphp.scenario import format_aphp_scenario
 
 
 class APHPPipeline(BasePipeline):
@@ -146,7 +147,7 @@ class APHPPipeline(BasePipeline):
 
         return format_scenarios(
             df,
-            pipeline_type="aphp",
+            scenario_fn=format_aphp_scenario,
             cancer_codes=sc_ctx.cancer_codes,
             atih_rules=atih_rules,
         )
