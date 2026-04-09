@@ -19,7 +19,8 @@ Stream/
 ├── runner.py                     # Orchestration du pipeline
 ├── core/
 │   ├── config.py                 # Chargement YAML
-│   └── logger.py                 # Logger console
+│   ├── logger.py                 # Logger console
+│   └── clients.py                # Definition des clients de connexion (Ollama, Mistral, Antropic)
 ├── pipelines/
 │   ├── __init__.py               # Expose les pipelines et modules communs
 │   ├── pipeline.py               # Classes de base et clients LLM
@@ -30,6 +31,8 @@ Stream/
 │   │   ├── __init__.py           # Expose BrestPipeline, constants, sampler
 │   │   ├── pipeline.py           # Pipeline Brest spécifique
 │   │   ├── constants.py          # Constantes et sources de données
+│   │   ├── fictive.py            # Création de CR fictif
+│   │   ├── report.py             # Création de rapport
 │   │   └── sampler.py            # Échantillonnage et génération aléatoire
 │   └── aphp/
 │       ├── __init__.py           # Expose les modules AP-HP et APHPPipeline
@@ -40,6 +43,8 @@ Stream/
 │       ├── prompt.py             # Génération des prompts utilisateur et système
 │       ├── sampler.py            # Échantillonnage et génération aléatoire
 │       ├── constants.py          # Constantes et listes de codes
+│   │   ├── fictive.py            # Création de CR fictif
+│   │   ├── report.py             # Création de rapport
 │       ├── referentials/         # Référentiels AP-HP (ICD-10, CCAM, GHM, etc.)
 │       └── templates/            # Modèles de prompts système
 └── config/
@@ -49,11 +54,20 @@ Stream/
 
 ## Installation
 
+Avec pip : 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Avec uv:
+```bash
+uv venv
+source .venv/bin/activate
+uv sync
+```
+
 
 ## Configuration
 
@@ -181,7 +195,7 @@ Trois nouveaux modules ont été ajoutés pour centraliser la logique commune en
 Module responsable de la génération de séjours fictifs à partir des données PMSI.
 
 **Fonction principale** :
-- `generate_fictive_stays(data, n_sejours, pipeline_type, **kwargs)`
+- `generate_fictive_stays(data, n_sejours, generate_fn, **kwargs)`
 
 **Responsabilités** :
 - Génération de séjours fictifs pour les pipelines Brest et AP-HP
@@ -193,7 +207,7 @@ Module responsable de la génération de séjours fictifs à partir des données
 Module responsable de la transformation des séjours fictifs en scénarios textuels pour les LLM.
 
 **Fonction principale** :
-- `format_scenarios(df, pipeline_type, **kwargs)`
+- `format_scenarios(df, scenario_fn, **kwargs)`
 
 **Responsabilités** :
 - Transformation des séjours en prompts textuels
@@ -205,7 +219,7 @@ Module responsable de la transformation des séjours fictifs en scénarios textu
 Module responsable de la génération de rapports CRH via appels LLM.
 
 **Fonction principale** :
-- `generate_reports(df, client, model, batch_size, output_dir, pipeline_type)`
+- `generate_reports(df, client, model, batch_size, output_dir, generate_fn)`
 
 **Responsabilités** :
 - Interaction avec les clients LLM (Anthropic, Mistral, Ollama)
@@ -263,11 +277,33 @@ Les pipelines Brest et AP-HP ont été mis à jour pour utiliser ces modules com
 ### Brest Pipeline
 ```python
 class BrestPipeline(BasePipeline):
+    @override
     def get_fictive(self, data, **kwargs):
-        return generate_fictive_stays(data, pipeline_type="brest", **kwargs)
-    
+        return generate_fictive_stays(data, generate_fn=generate_brest_fictive, **kwargs)
+
+    @override
     def get_scenario(self, df):
-        return format_scenarios(df, pipeline_type="brest")
+        return format_scenarios(df, scenario_fn=format_brest_scenario)
+
+     @override
+    def get_report(
+        self,
+        df: pl.DataFrame,
+        client: AnthropicClient | MistralClient | OllamaClient,
+        model: str,
+        batch_size: int = 1000,
+    ) -> pl.DataFrame:
+        output_dir = Path(self.config["data"]["output"])
+        system_prompt = self.prompt["generate"]["system_prompt"]
+        return generate_reports(
+            df=df,
+            client=client,
+            model=model,
+            generate_fn=generate_brest_report,
+            batch_size=batch_size,
+            output_dir=output_dir,
+            system_prompt=system_prompt,
+        )
 ```
 
 ### AP-HP Pipeline
@@ -280,14 +316,37 @@ Le pipeline AP-HP utilise les modules communs avec une sur-couche spécifique po
 
 ```python
 class APHPPipeline(BasePipeline):
+    @override
     def get_fictive(self, data, **kwargs):
-        return generate_fictive_stays(data, pipeline_type="aphp", **kwargs)
+        return generate_fictive_stays(data, generate_fn=generate_aphp_ficitive, **kwargs)
     
+    @override
     def get_scenario(self, df):
-        return format_scenarios(df, pipeline_type="aphp", **kwargs)
+        return format_scenarios(df, scenario_fn=format_aphp_scenario, **kwargs)
     
-    def get_report(self, df, client, model, **kwargs):
-        return generate_reports(df, client, model, pipeline_type="aphp", **kwargs)
+    @override
+    def get_report(
+        self,
+        df: pl.DataFrame,
+        client: Any,
+        model: str,
+        batch_size: int = 1000,
+    ) -> pl.DataFrame:
+        """Generate one CRH per scenario using the row's own system prompt.
+
+        Overrides :meth:`~pipelines.pipeline.BasePipeline.get_report` to read
+        ``df_row["system_prompt"]`` instead of a single global system prompt.
+        """
+        output_dir = Path(self.config["data"]["output"])
+        return generate_reports(
+            df,
+            client,
+            model,
+            batch_size=batch_size,
+            output_dir=output_dir,
+            generate_fn=generate_aphp_report,
+            system_prompt="",  # just for signature since system from is in the df in the function generate_aphp_report
+        )
 ```
 
 ## Ajouter un pipeline
