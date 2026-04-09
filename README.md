@@ -43,8 +43,8 @@ Stream/
 │       ├── prompt.py             # Génération des prompts utilisateur et système
 │       ├── sampler.py            # Échantillonnage et génération aléatoire
 │       ├── constants.py          # Constantes et listes de codes
-│   │   ├── fictive.py            # Création de CR fictif
-│   │   ├── report.py             # Création de rapport
+│       ├── fictive.py            # Création de CR fictif
+│       ├── report.py             # Création de rapport
 │       ├── referentials/         # Référentiels AP-HP (ICD-10, CCAM, GHM, etc.)
 │       └── templates/            # Modèles de prompts système
 └── config/
