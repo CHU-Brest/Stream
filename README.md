@@ -166,7 +166,13 @@ Schéma : `generation_id`, `scenario`, `report`, `model`, `timestamp`.
 Pour exécuter les tests unitaires, utilisez la commande suivante :
 
 ```bash
-python -m pytest tests/ -v
+python -m  tests/ -v
+```
+
+ou plus simplement à l'aide du Makefile
+
+```bash
+make test
 ```
 
 Les tests couvrent :
