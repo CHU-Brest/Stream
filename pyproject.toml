@@ -11,6 +11,7 @@ dependencies = [
     "numpy>=1.26.0",
     "ollama>=0.6.0",
     "polars>=1.39.0",
+    "pytest>=9.0.3",
     "pyyaml>=6.0",
     "tqdm>=4.67.0",
 ]

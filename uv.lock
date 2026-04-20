@@ -147,6 +147,15 @@ wheels = [
 ]
 
 [[package]]
+name = "iniconfig"
+version = "2.3.0"
+source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
+sdist = { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/iniconfig/2.3.0/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730" }
+wheels = [
+    { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/iniconfig/2.3.0/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12" },
+]
+
+[[package]]
 name = "jiter"
 version = "0.13.0"
 source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
@@ -370,6 +379,24 @@ wheels = [
 ]
 
 [[package]]
+name = "packaging"
+version = "26.1"
+source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
+sdist = { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/packaging/26.1/packaging-26.1.tar.gz", hash = "sha256:f042152b681c4bfac5cae2742a55e103d27ab2ec0f3d88037136b6bfe7c9c5de" }
+wheels = [
+    { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/packaging/26.1/packaging-26.1-py3-none-any.whl", hash = "sha256:5d9c0669c6285e491e0ced2eee587eaf67b670d94a19e94e3984a481aba6802f" },
+]
+
+[[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
+sdist = { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pluggy/1.6.0/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3" }
+wheels = [
+    { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pluggy/1.6.0/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746" },
+]
+
+[[package]]
 name = "polars"
 version = "1.39.3"
 source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
@@ -502,6 +529,31 @@ wheels = [
 ]
 
 [[package]]
+name = "pygments"
+version = "2.20.0"
+source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
+sdist = { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pygments/2.20.0/pygments-2.20.0.tar.gz", hash = "sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f" }
+wheels = [
+    { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pygments/2.20.0/pygments-2.20.0-py3-none-any.whl", hash = "sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176" },
+]
+
+[[package]]
+name = "pytest"
+version = "9.0.3"
+source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pytest/9.0.3/pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c" }
+wheels = [
+    { url = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/packages/pytest/9.0.3/pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://cdc-package.chu-brest.fr/nexus/repository/pypiplus/simple" }
@@ -597,6 +649,7 @@ dependencies = [
     { name = "numpy" },
     { name = "ollama" },
     { name = "polars" },
+    { name = "pytest" },
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
@@ -609,6 +662,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.26.0" },
     { name = "ollama", specifier = ">=0.6.0" },
     { name = "polars", specifier = ">=1.39.0" },
+    { name = "pytest", specifier = ">=9.0.3" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "tqdm", specifier = ">=4.67.0" },
 ]
