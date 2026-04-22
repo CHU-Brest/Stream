@@ -78,7 +78,7 @@ class MistralClient(BaseClient):
     def __init__(self, api_key: str, verify: bool | str = True) -> None:
         super().__init__()
 
-        self._client = Mistral(api_key=api_key)
+        self._client = Mistral(api_key=api_key, timeout_ms=120_000)
         if verify is not True:
             self._client.client._client = httpx.Client(verify=verify)
 
