@@ -11,8 +11,18 @@ pipelines:
       output: "reports/aphp/" # Répertoire de sortie des CRH générés
     generation:
       mode: "direct"          # direct ou mistral_batch
-      max_tokens: 4096
+      workflow: "one_stage"   # one_stage ou two_stage
       poll_interval_seconds: 1
+      one_stage:
+        model: "mistral-large-latest"
+        max_tokens: 128000
+      two_stage:
+        summary:
+          model: "mistral-large-latest"
+          max_tokens: 8000
+        report:
+          model: "mistral-large-latest"
+          max_tokens: 128000
 
 # Configuration des serveurs LLM
 servers:

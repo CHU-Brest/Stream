@@ -17,6 +17,7 @@ from core.clients import AnthropicClient, MistralClient, OllamaClient
 from pipelines.aphp.report import (
     generate_aphp_report,
     generate_aphp_reports_mistral_batch,
+    generate_aphp_reports_mistral_batch_two_stage,
 )
 from pipelines.pipeline import BasePipeline
 from pipelines.report import generate_reports
@@ -84,6 +85,18 @@ class APHPPipeline(BasePipeline):
 
         generation_cfg = self.config.get("generation", {})
         mode = generation_cfg.get("mode", "direct")
+        workflow = generation_cfg.get("workflow", "one_stage")
+
+        if workflow not in {"one_stage", "two_stage"}:
+            raise ValueError(
+                "generation.workflow doit valoir 'one_stage' ou 'two_stage'."
+            )
+
+        if workflow == "two_stage" and mode != "mistral_batch":
+            raise ValueError(
+                "generation.workflow='two_stage' requires "
+                "generation.mode='mistral_batch'."
+            )
 
         if mode == "mistral_batch":
             if not isinstance(client, MistralClient):
@@ -91,12 +104,32 @@ class APHPPipeline(BasePipeline):
                     "generation.mode='mistral_batch' requires --client mistral."
                 )
 
+            if workflow == "two_stage":
+                two_stage_cfg = generation_cfg.get("two_stage", {})
+                summary_cfg = two_stage_cfg.get("summary", {})
+                report_cfg = two_stage_cfg.get("report", {})
+                return generate_aphp_reports_mistral_batch_two_stage(
+                    df,
+                    client,
+                    summary_model=summary_cfg.get("model", model),
+                    report_model=report_cfg.get("model", model),
+                    output_dir=output_dir,
+                    summary_max_tokens=summary_cfg.get("max_tokens", 8_000),
+                    report_max_tokens=report_cfg.get("max_tokens", 128_000),
+                    poll_interval_seconds=generation_cfg.get(
+                        "poll_interval_seconds", 1
+                    ),
+                )
+
+            one_stage_cfg = generation_cfg.get("one_stage", {})
             return generate_aphp_reports_mistral_batch(
                 df,
                 client,
-                model,
+                one_stage_cfg.get("model", model),
                 output_dir=output_dir,
-                max_tokens=generation_cfg.get("max_tokens", 128_000),
+                max_tokens=one_stage_cfg.get(
+                    "max_tokens", generation_cfg.get("max_tokens", 128_000)
+                ),
                 poll_interval_seconds=generation_cfg.get("poll_interval_seconds", 1),
             )
 

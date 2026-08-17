@@ -90,7 +90,7 @@ wheels = [
 [[package]]
 name = "fictomed"
 version = "0.1.0"
-source = { git = "https://github.com/CHU-Brest/fictomed#58998c83261702ae0982f15b91c29b4ed2bbf7bb" }
+source = { git = "https://github.com/CHU-Brest/fictomed?rev=ec3e419#ec3e419c2d4a5dfefb9df00eaf2e83199a287b5a" }
 dependencies = [
     { name = "numpy" },
     { name = "polars" },
@@ -564,7 +564,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = ">=0.49.0" },
-    { name = "fictomed", git = "https://github.com/CHU-Brest/fictomed" },
+    { name = "fictomed", git = "https://github.com/CHU-Brest/fictomed?rev=ec3e419" },
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "mistralai", specifier = ">=2.3.0" },
     { name = "numpy", specifier = ">=1.26.0" },
