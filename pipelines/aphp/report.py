@@ -5,6 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import os
+from mistralai import Mistral
+
 import polars as pl
 
 
