@@ -160,14 +160,30 @@ pipelines:
           max_tokens: 128000
 ```
 
-Le jeu de prompts `default` prend en charge le workflow `one_stage`. Le jeu
-`old` prend en charge les workflows `one_stage` et `two_stage`. Un répertoire
-externe peut être sélectionné avec `prompt_dir` à la place de `prompt_set`.
-Le workflow `two_stage` nécessite le mode `mistral_batch`.
+Compatibilité des configurations AP-HP :
+
+| Mode | Workflow | Client | Jeu de prompts |
+|------|----------|--------|----------------|
+| `direct` | `one_stage` | Ollama, Claude ou Mistral | `default`, `old` ou externe |
+| `mistral_batch` | `one_stage` | Mistral | `default`, `old` ou externe |
+| `mistral_batch` | `two_stage` | Mistral | `old` ou externe compatible |
+
+Le jeu de prompts `default` prend uniquement en charge `one_stage`. Le jeu
+`old` prend en charge les deux workflows. Un jeu externe peut être sélectionné
+avec `prompt_dir` à la place de `prompt_set`. fictomed valide son manifeste et
+en sauvegarde un instantané dans le répertoire de sortie.
 
 En mode `mistral_batch`, les requêtes sont réparties dans des jobs successifs
 de `mistral_batch_size` requêtes. La valeur par défaut est `1000`. Les
-réponses sont réunies dans le fichier Parquet de sortie habituel.
+réponses de tous les jobs sont réunies dans un unique fichier Parquet. Pour
+`N` scénarios, `one_stage` crée `ceil(N / mistral_batch_size)` jobs.
+`two_stage` exécute tous les jobs de résumés, puis les jobs de comptes rendus
+pour les résumés obtenus sans erreur.
+
+Les uploads et téléchargements sont retentés en cas d’erreur réseau. Le suivi
+d’un job reprend également après une interruption réseau, sans recréer le job.
+La création d’un job n’est pas répétée automatiquement : si sa réponse est
+perdue, les jobs actifs doivent être vérifiés côté Mistral avant une relance.
 
 ### Données d'entrée (pipeline Brest)
 
@@ -232,7 +248,7 @@ python cli.py aphp --client mistral --n-sejours 10
 | `--n-ccam` | 1 | Nombre max d'actes CCAM par séjour (Brest uniquement) |
 | `--n-das` | 5 | Nombre max de diagnostics associés (Brest uniquement) |
 | `--ghm5` | — | Filtre sur les codes GHM5 (ex. `06C`) |
-| `--batch-size` | 1000 | Lignes par fichier Parquet de sortie |
+| `--batch-size` | 1000 | Lignes par écriture intermédiaire en mode direct |
 
 ## Sortie
 
@@ -249,15 +265,31 @@ reports/aphp/medical_reports_10_20260512_113644.parquet
 Pour le pipeline AP-HP, les scénarios complets sont également sauvegardés avant l’appel au LLM :
 
 ```text
-reports/aphp/generated_scenarios_10_20260512_113402.parquet
+reports/aphp/aphp_scenarios_10_20260512_113402.parquet
 ```
 Ces fichiers contiennent notamment les diagnostics, DAS, actes, règle de codage, template, scenario, user_prompt, system_prompt, prefix et prefix_len.
 
-En mode Mistral batch AP-HP, les sorties sont sauvegardées séparément :
+En mode Mistral batch AP-HP :
 ```text
 reports/aphp/aphp_mistral_batch_reports_10_20260512_115347.parquet
+reports/aphp/aphp_mistral_batch_two_stage_reports_10_20260512_120015.parquet
 ```
-Schéma minimal des sorties CRH : generation_id, scenario, report, model, timestamp.
+
+Les sorties `one_stage` contiennent notamment :
+
+| Colonne | Contenu |
+|---------|---------|
+| `generation_id` | Identifiant du scénario |
+| `scenario` | Scénario clinique |
+| `report` | Compte rendu généré |
+| `model` | Modèle utilisé |
+| `prompt_tokens`, `completion_tokens`, `total_tokens` | Consommation Mistral |
+| `mistral_batch_error` | Erreur de la requête, le cas échéant |
+
+Les sorties `two_stage` ajoutent le résumé intermédiaire, son modèle, ses
+compteurs de tokens et son éventuelle erreur. Si le résumé échoue, la
+génération finale correspondante n’est pas envoyée et la ligne reste présente
+dans le Parquet avec un compte rendu vide.
 
 Les sorties AP-HP peuvent contenir des colonnes supplémentaires utiles au debug et à la comparaison avec la méthode historique AP-HP.
 
@@ -266,7 +298,7 @@ Les sorties AP-HP peuvent contenir des colonnes supplémentaires utiles au debug
 Pour exécuter les tests unitaires, utilisez la commande suivante :
 
 ```bash
-python -m  tests/ -v
+uv run pytest
 ```
 
 ou plus simplement à l'aide du Makefile
