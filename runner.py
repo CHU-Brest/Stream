@@ -42,6 +42,7 @@ def run(
         servers=config["servers"],
     )
 
+    generation_cfg = config["pipelines"][pipeline_name].get("generation", {})
     df = generate(
         pipeline_name=pipeline_name,
         n_sejours=n_sejours,
@@ -49,6 +50,9 @@ def run(
         n_das=n_das,
         ghm5_pattern=ghm5_pattern,
         config_file=str(CONFIG_DIR / "servers.yaml"),
+        prompt_workflow=generation_cfg.get("workflow", "one_stage"),
+        prompt_set=generation_cfg.get("prompt_set", "default"),
+        prompt_dir=generation_cfg.get("prompt_dir"),
     )
     client, model = get_client(pipeline.servers, client_type)
     pipeline.get_report(df, client, model, batch_size=batch_size)

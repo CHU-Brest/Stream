@@ -96,8 +96,19 @@ pipelines:
 
     generation:
       mode: "direct"           # direct ou mistral_batch
-      max_tokens: 4096         # Nombre maximum de tokens par requête
+      workflow: "one_stage"    # one_stage ou two_stage
+      prompt_set: "default"    # default ou old
       poll_interval_seconds: 1 # Intervalle de polling en secondes
+      one_stage:
+        model: "mistral-large-latest"
+        max_tokens: 128000
+      two_stage:
+        summary:
+          model: "mistral-large-latest"
+          max_tokens: 8000
+        report:
+          model: "mistral-large-latest"
+          max_tokens: 128000
 
 servers:
   ollama:
@@ -117,10 +128,39 @@ pipelines:
   aphp:
     generation:
       mode: "mistral_batch"
-      max_tokens: 128000
+      workflow: "one_stage"
+      prompt_set: "default"
+      one_stage:
+        model: "mistral-large-latest"
+        max_tokens: 128000
       poll_interval_seconds: 1
 ```
 Ce mode est spécifique au client mistral. Le mode direct reste le mode par défaut et fonctionne avec Ollama, Claude et Mistral.
+
+Le workflow AP-HP en deux étapes génère d'abord un résumé clinique, puis
+utilise ce résumé pour produire le compte rendu final :
+
+```yaml
+pipelines:
+  aphp:
+    generation:
+      mode: "mistral_batch"
+      workflow: "two_stage"
+      prompt_set: "old"
+      poll_interval_seconds: 1
+      two_stage:
+        summary:
+          model: "mistral-large-latest"
+          max_tokens: 8000
+        report:
+          model: "mistral-large-latest"
+          max_tokens: 128000
+```
+
+Le jeu de prompts `default` prend en charge le workflow `one_stage`. Le jeu
+`old` prend en charge les workflows `one_stage` et `two_stage`. Un répertoire
+externe peut être sélectionné avec `prompt_dir` à la place de `prompt_set`.
+Le workflow `two_stage` nécessite le mode `mistral_batch`.
 
 ### Données d'entrée (pipeline Brest)
 
