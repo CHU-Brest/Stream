@@ -119,6 +119,7 @@ class APHPPipeline(BasePipeline):
                     poll_interval_seconds=generation_cfg.get(
                         "poll_interval_seconds", 1
                     ),
+                    batch_size=generation_cfg.get("mistral_batch_size", 1_000),
                 )
 
             one_stage_cfg = generation_cfg.get("one_stage", {})
@@ -131,6 +132,7 @@ class APHPPipeline(BasePipeline):
                     "max_tokens", generation_cfg.get("max_tokens", 128_000)
                 ),
                 poll_interval_seconds=generation_cfg.get("poll_interval_seconds", 1),
+                batch_size=generation_cfg.get("mistral_batch_size", 1_000),
             )
 
         return generate_reports(

@@ -2,7 +2,10 @@ import polars as pl
 import pytest
 
 from pipelines.aphp.pipeline import APHPPipeline
-from pipelines.aphp.report import generate_aphp_reports_mistral_batch_two_stage
+from pipelines.aphp.report import (
+    generate_aphp_reports_mistral_batch,
+    generate_aphp_reports_mistral_batch_two_stage,
+)
 
 
 class FakeBatchClient:
@@ -19,7 +22,7 @@ class FakeBatchClient:
                 "poll_interval_seconds": poll_interval_seconds,
             }
         )
-        is_summary = len(self.calls) == 1
+        is_summary = model == "summary-model"
         responses = []
         for request in reversed(requests):
             custom_id = request["custom_id"]
@@ -58,6 +61,18 @@ def two_stage_df():
     )
 
 
+def one_stage_df():
+    return pl.DataFrame(
+        {
+            "generation_id": ["g0", "g1", "g2"],
+            "scenario": ["scenario 0", "scenario 1", "scenario 2"],
+            "user_prompt": ["USER 0", "USER 1", "USER 2"],
+            "system_prompt": ["SYSTEM 0", "SYSTEM 1", "SYSTEM 2"],
+            "prefix": ["PREFIX 0", "PREFIX 1", "PREFIX 2"],
+        }
+    )
+
+
 def test_two_stage_runs_two_batches_and_joins_by_custom_id(tmp_path):
     client = FakeBatchClient()
 
@@ -81,6 +96,60 @@ def test_two_stage_runs_two_batches_and_joins_by_custom_id(tmp_path):
     assert result["report"].to_list() == ["REPORT-0", "REPORT-1"]
     assert result["summary_total_tokens"].to_list() == [30, 30]
     assert list(tmp_path.glob("aphp_mistral_batch_two_stage_reports_2_*.parquet"))
+
+
+def test_one_stage_splits_requests_and_keeps_one_output(tmp_path):
+    client = FakeBatchClient()
+
+    result = generate_aphp_reports_mistral_batch(
+        one_stage_df(),
+        client,
+        "report-model",
+        output_dir=tmp_path,
+        batch_size=2,
+    )
+
+    assert [
+        [request["custom_id"] for request in call["requests"]]
+        for call in client.calls
+    ] == [["0", "1"], ["2"]]
+    assert result["report"].to_list() == ["REPORT-0", "REPORT-1", "REPORT-2"]
+    assert len(list(tmp_path.glob("aphp_mistral_batch_reports_3_*.parquet"))) == 1
+
+
+def test_two_stage_splits_summary_and_report_requests(tmp_path):
+    client = FakeBatchClient()
+
+    result = generate_aphp_reports_mistral_batch_two_stage(
+        two_stage_df(),
+        client,
+        summary_model="summary-model",
+        report_model="report-model",
+        output_dir=tmp_path,
+        batch_size=1,
+    )
+
+    assert [
+        (call["model"], [request["custom_id"] for request in call["requests"]])
+        for call in client.calls
+    ] == [
+        ("summary-model", ["0"]),
+        ("summary-model", ["1"]),
+        ("report-model", ["0"]),
+        ("report-model", ["1"]),
+    ]
+    assert result["report"].to_list() == ["REPORT-0", "REPORT-1"]
+
+
+def test_mistral_batch_size_must_be_positive(tmp_path):
+    with pytest.raises(ValueError, match="mistral_batch_size"):
+        generate_aphp_reports_mistral_batch(
+            one_stage_df(),
+            FakeBatchClient(),
+            "report-model",
+            output_dir=tmp_path,
+            batch_size=0,
+        )
 
 
 def test_two_stage_skips_failed_summaries_in_report_batch(tmp_path):

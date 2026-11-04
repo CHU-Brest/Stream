@@ -99,6 +99,7 @@ pipelines:
       workflow: "one_stage"    # one_stage ou two_stage
       prompt_set: "default"    # default ou old
       poll_interval_seconds: 1 # Intervalle de polling en secondes
+      mistral_batch_size: 1000 # Nombre de requêtes par job Mistral
       one_stage:
         model: "mistral-large-latest"
         max_tokens: 128000
@@ -130,6 +131,7 @@ pipelines:
       mode: "mistral_batch"
       workflow: "one_stage"
       prompt_set: "default"
+      mistral_batch_size: 1000
       one_stage:
         model: "mistral-large-latest"
         max_tokens: 128000
@@ -148,6 +150,7 @@ pipelines:
       workflow: "two_stage"
       prompt_set: "old"
       poll_interval_seconds: 1
+      mistral_batch_size: 1000
       two_stage:
         summary:
           model: "mistral-large-latest"
@@ -161,6 +164,10 @@ Le jeu de prompts `default` prend en charge le workflow `one_stage`. Le jeu
 `old` prend en charge les workflows `one_stage` et `two_stage`. Un répertoire
 externe peut être sélectionné avec `prompt_dir` à la place de `prompt_set`.
 Le workflow `two_stage` nécessite le mode `mistral_batch`.
+
+En mode `mistral_batch`, les requêtes sont réparties dans des jobs successifs
+de `mistral_batch_size` requêtes. La valeur par défaut est `1000`. Les
+réponses sont réunies dans le fichier Parquet de sortie habituel.
 
 ### Données d'entrée (pipeline Brest)
 

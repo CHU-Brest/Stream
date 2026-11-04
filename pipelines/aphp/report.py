@@ -28,6 +28,31 @@ def generate_aphp_report(
     return client.chat(model=model, messages=messages)
 
 
+def _run_mistral_batch_chunks(
+    client: Any,
+    *,
+    model: str,
+    requests: list[dict],
+    max_tokens: int,
+    poll_interval_seconds: int,
+    batch_size: int,
+) -> list[dict]:
+    if batch_size <= 0:
+        raise ValueError("generation.mistral_batch_size doit être supérieur à 0.")
+
+    responses: list[dict] = []
+    for start in range(0, len(requests), batch_size):
+        responses.extend(
+            client.batch_chat(
+                model=model,
+                requests=requests[start : start + batch_size],
+                max_tokens=max_tokens,
+                poll_interval_seconds=poll_interval_seconds,
+            )
+        )
+    return responses
+
+
 def generate_aphp_reports_mistral_batch(
     df: pl.DataFrame,
     client: Any,
@@ -36,6 +61,7 @@ def generate_aphp_reports_mistral_batch(
     output_dir: Path,
     max_tokens: int = 128_000,
     poll_interval_seconds: int = 1,
+    batch_size: int = 1_000,
 ) -> pl.DataFrame:
     """Generate AP-HP reports using Historical AP-HP Mistral batch method.
 
@@ -63,11 +89,13 @@ def generate_aphp_reports_mistral_batch(
             }
         )
 
-    responses = client.batch_chat(
+    responses = _run_mistral_batch_chunks(
+        client,
         model=model,
         requests=batch_requests,
         max_tokens=max_tokens,
         poll_interval_seconds=poll_interval_seconds,
+        batch_size=batch_size,
     )
 
     responses_by_idx = {int(response["custom_id"]): response for response in responses}
@@ -122,6 +150,7 @@ def generate_aphp_reports_mistral_batch_two_stage(
     summary_max_tokens: int = 8_000,
     report_max_tokens: int = 128_000,
     poll_interval_seconds: int = 1,
+    batch_size: int = 1_000,
 ) -> pl.DataFrame:
     """Generate an intermediate summary, then the final AP-HP report."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -151,11 +180,13 @@ def generate_aphp_reports_mistral_batch_two_stage(
         }
         for idx, row in enumerate(rows)
     ]
-    summary_responses = client.batch_chat(
+    summary_responses = _run_mistral_batch_chunks(
+        client,
         model=summary_model,
         requests=summary_requests,
         max_tokens=summary_max_tokens,
         poll_interval_seconds=poll_interval_seconds,
+        batch_size=batch_size,
     )
     summaries_by_idx = {
         int(response["custom_id"]): response for response in summary_responses
@@ -178,11 +209,13 @@ def generate_aphp_reports_mistral_batch_two_stage(
         )
 
     report_responses = (
-        client.batch_chat(
+        _run_mistral_batch_chunks(
+            client,
             model=report_model,
             requests=report_requests,
             max_tokens=report_max_tokens,
             poll_interval_seconds=poll_interval_seconds,
+            batch_size=batch_size,
         )
         if report_requests
         else []
